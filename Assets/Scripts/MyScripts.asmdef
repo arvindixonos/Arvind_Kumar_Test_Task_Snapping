@@ -1,0 +1,16 @@
+{
+    "name": "MyScripts",
+    "rootNamespace": "MyScripts",
+    "references": [
+        "GUID:922592da627b7ab4faa743cbecfd744c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
