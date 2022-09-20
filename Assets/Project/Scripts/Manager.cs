@@ -73,6 +73,12 @@ namespace MyScripts
             {
                 SimpleSphereObject.Instance.SnapSnappables();
             }
+
+            // Alt Input
+            if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
+            {
+                SimpleSphereObject.Instance.ReleaseAllSnappables();
+            }
         }
 
     }

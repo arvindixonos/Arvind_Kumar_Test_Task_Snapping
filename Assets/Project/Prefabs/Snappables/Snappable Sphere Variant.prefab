@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1492721403}
   - component: {fileID: 1492721406}
   - component: {fileID: 1492721405}
-  - component: {fileID: 1492721404}
   m_Layer: 6
   m_Name: Sphere
   m_TagString: Untagged
@@ -84,19 +83,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &1492721404
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1492721402}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &7486807247214916361
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -107,7 +93,7 @@ PrefabInstance:
     - target: {fileID: 746612048962590852, guid: 8eb7734bd8aa1b54e8c804e48f4fed82,
         type: 3}
       propertyPath: m_Name
-      value: Snappable Sphere
+      value: Snappable Sphere Variant
       objectReference: {fileID: 0}
     - target: {fileID: 746612048962590852, guid: 8eb7734bd8aa1b54e8c804e48f4fed82,
         type: 3}
@@ -171,6 +157,25 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8eb7734bd8aa1b54e8c804e48f4fed82, type: 3}
+--- !u!1 &7906636724223191949 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 746612048962590852, guid: 8eb7734bd8aa1b54e8c804e48f4fed82,
+    type: 3}
+  m_PrefabInstance: {fileID: 7486807247214916361}
+  m_PrefabAsset: {fileID: 0}
+--- !u!135 &9015189251772500532
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7906636724223191949}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.25
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7906636724223192049 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 746612048962590968, guid: 8eb7734bd8aa1b54e8c804e48f4fed82,

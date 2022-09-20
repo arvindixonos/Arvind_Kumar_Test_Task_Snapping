@@ -30,7 +30,7 @@ namespace MyScripts
             if (instance == null)
             {
                 instance = this as T;
-                DontDestroyOnLoad(this.gameObject);
+                //DontDestroyOnLoad(this.gameObject);
             }
             else
             {

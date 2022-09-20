@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1943992280}
   - component: {fileID: 1943992283}
   - component: {fileID: 1943992282}
-  - component: {fileID: 1943992281}
   m_Layer: 6
   m_Name: Cylinder
   m_TagString: Untagged
@@ -84,20 +83,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &1943992281
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1943992279}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!1001 &1320257730868966020
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -108,7 +93,7 @@ PrefabInstance:
     - target: {fileID: 746612048962590852, guid: 8eb7734bd8aa1b54e8c804e48f4fed82,
         type: 3}
       propertyPath: m_Name
-      value: Snappable Cyclinder
+      value: Snappable Cyclinder Variant
       objectReference: {fileID: 0}
     - target: {fileID: 746612048962590852, guid: 8eb7734bd8aa1b54e8c804e48f4fed82,
         type: 3}
@@ -172,6 +157,25 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8eb7734bd8aa1b54e8c804e48f4fed82, type: 3}
+--- !u!1 &1733323845824768512 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 746612048962590852, guid: 8eb7734bd8aa1b54e8c804e48f4fed82,
+    type: 3}
+  m_PrefabInstance: {fileID: 1320257730868966020}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &5677219273528432115
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1733323845824768512}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.5, y: 1, z: 0.5}
+  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!4 &1733323845824768636 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 746612048962590968, guid: 8eb7734bd8aa1b54e8c804e48f4fed82,

@@ -52,7 +52,7 @@ namespace MyScripts
 
             foreach (var currentCollider in colliders)
             {
-                var currentSnappable = currentCollider.GetComponentInParent<Snappable>();
+                var currentSnappable = currentCollider.GetComponent<Snappable>();
 
                 if (currentSnappable == null || currentSnappable.IsSnapped)
                     continue;
@@ -70,6 +70,19 @@ namespace MyScripts
             }
 
             return closestSnappable;
+        }
+
+        public void ReleaseAllSnappables()
+        {
+            Snappable[] snappables = transform.GetComponentsInChildren<Snappable>();
+
+            foreach(Snappable snappable in snappables)
+            {
+                if(snappable.IsSnapped)
+                {
+                    snappable.ReleaseFromSnappedObject();
+                }
+            }
         }
 
         public void SnapSnappables()
