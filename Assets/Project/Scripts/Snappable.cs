@@ -12,19 +12,11 @@ namespace MyScripts
         private bool isSnapped = false;
         public bool IsSnapped { get => isSnapped; set => isSnapped = value; }
 
-        private Collider myCollider;
-
-        private Renderer myRenderer;
-
-        private void Awake()
+        public void SnapToSimpleObject(Transform parentTransform, Vector3 snapPositionLocal)
         {
-            myCollider = GetComponentInChildren<Collider>();
-            myRenderer = GetComponentInChildren<Renderer>();
-        }
-
-        void Start()
-        {
-            
+            transform.parent = parentTransform;
+            transform.localPosition = snapPositionLocal;
+            IsSnapped = true;
         }
     }
 }

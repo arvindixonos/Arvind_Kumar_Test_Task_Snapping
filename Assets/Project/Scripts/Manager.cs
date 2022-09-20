@@ -18,7 +18,8 @@ namespace MyScripts
 
         public Transform[] snappableSpawnPoints;
 
-        public Transform simpleObject;
+        private Vector3 simpleObjecttargetPosition;
+        private RaycastHit hit;
 
         public LayerMask hittableLayer;
 
@@ -36,19 +37,19 @@ namespace MyScripts
 
         public void PopulateSnappablesOnTable()
         {
-            int numSnappableSpawnPoints = snappableSpawnPoints.Length;
+            var numSnappableSpawnPoints = snappableSpawnPoints.Length;
 
             snappableObjectPool = new Snappable[numSnappableSpawnPoints];
 
-            int numSnappableObjectPrefabs = snappablePrefabs.Length;
+            var numSnappableObjectPrefabs = snappablePrefabs.Length;
 
             Random.InitState((int)System.DateTime.Now.Ticks);
 
             for (int i = 0; i < numSnappableSpawnPoints; i++)
             {
-                Snappable randomSnappable = snappablePrefabs[Random.Range(0, numSnappableObjectPrefabs - 1)];
+                var randomSnappable = snappablePrefabs[Random.Range(0, numSnappableObjectPrefabs - 1)];
 
-                Quaternion randomRotation = Quaternion.Euler(Random.Range(-180f, 180f), Random.Range(-180f, 180f), Random.Range(-180f, 180f));
+                var randomRotation = Quaternion.Euler(Random.Range(-180f, 180f), Random.Range(-180f, 180f), Random.Range(-180f, 180f));
 
                 snappableObjectPool[i] = Snappable.Instantiate(randomSnappable, snappableSpawnPoints[i].position, randomRotation);
             }
@@ -56,25 +57,21 @@ namespace MyScripts
 
         public void Update()
         {
-            RaycastHit hit;
-            Ray ray = targetCamera.ScreenPointToRay(Input.mousePosition);
+            var ray = targetCamera.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out hit, 1000f))
+            if (Physics.Raycast(ray, out hit, 1000f, hittableLayer))
             {
-                if(hittableLayer == (hittableLayer | (1 << hit.transform.gameObject.layer)))
-                {
-                    simpleObject.position = new Vector3(hit.point.x, hit.point.y + YOffsetHitPosition, hit.point.z);
+                simpleObjecttargetPosition.x = hit.point.x;
+                simpleObjecttargetPosition.y = hit.point.y + YOffsetHitPosition;
+                simpleObjecttargetPosition.z = hit.point.z;
 
-                    //print("Hit Table Only");
-                }
-                else
-                {
-                    //print("Hit Object: " + hit.transform.name);
-                }
+                SimpleSphereObject.Instance.SetTargetPosition(simpleObjecttargetPosition);
             }
-            else
+
+            // Shift Input
+            if(Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
             {
-                //print("NOT HIT ME");
+                SimpleSphereObject.Instance.SnapSnappables();
             }
         }
 
