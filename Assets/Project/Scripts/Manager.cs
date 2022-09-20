@@ -11,8 +11,6 @@ namespace MyScripts
     {
         public Camera targetCamera;
 
-        public float YOffsetHitPosition = 1f;
-
         public Snappable[] snappablePrefabs;
         private Snappable[] snappableObjectPool;
 
@@ -22,6 +20,8 @@ namespace MyScripts
         private RaycastHit hit;
 
         public LayerMask hittableLayer;
+
+        public Snappable currentSelectedSnappable;
 
         public override void Awake()
         {
@@ -55,29 +55,32 @@ namespace MyScripts
             }
         }
 
+        void ReleaseAllSnappables()
+        {
+            Snappable[] snappables = FindObjectsOfType<Snappable>();
+            
+            foreach(Snappable snappable in snappables)
+            {
+                snappable.ClearChildSnappables();
+                snappable.ReleaseFromSnappedObject();
+            }
+        }
+
         public void Update()
         {
-            var ray = targetCamera.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast(ray, out hit, 1000f, hittableLayer))
-            {
-                simpleObjecttargetPosition.x = hit.point.x;
-                simpleObjecttargetPosition.y = hit.point.y + YOffsetHitPosition;
-                simpleObjecttargetPosition.z = hit.point.z;
-
-                SimpleSphereObject.Instance.SetTargetPosition(simpleObjecttargetPosition);
-            }
-
             // Shift Input
-            if(Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
+            if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
             {
-                SimpleSphereObject.Instance.SnapSnappables();
+                if(currentSelectedSnappable != null)
+                {
+                    currentSelectedSnappable.SnapSnappables();
+                }
             }
 
             // Alt Input
             if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
             {
-                SimpleSphereObject.Instance.ReleaseAllSnappables();
+                ReleaseAllSnappables();
             }
         }
 
