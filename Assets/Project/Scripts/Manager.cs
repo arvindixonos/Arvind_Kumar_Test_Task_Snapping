@@ -69,7 +69,7 @@ namespace MyScripts
         public void Update()
         {
             // Shift Input
-            if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
             {
                 if(currentSelectedSnappable != null)
                 {

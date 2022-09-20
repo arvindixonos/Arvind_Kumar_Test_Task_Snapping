@@ -122,19 +122,25 @@ namespace MyScripts
             currentStateName = stateMachine.ChangeState(stateName);
         }
 
-        public void SnapToSnappable(Transform parentTransform, Vector3 snapPositionLocal)
+        public void SnapToSnappable(Snappable parentSnappable)
         {
-            transform.parent = parentTransform;
-            transform.localPosition = snapPositionLocal;
+            UpdateBounds();
+
+            var positionFromMaxBoundPos = parentSnappable.myBounds.ClosestPoint(myBounds.max);
+            var positionFromMinBoundPos = parentSnappable.myBounds.ClosestPoint(myBounds.min);
+            var distancefromMaxBoundPos = Vector3.SqrMagnitude(positionFromMaxBoundPos - parentSnappable.myBounds.center);
+            var distancefromMinBoundPos = Vector3.SqrMagnitude(positionFromMinBoundPos - parentSnappable.myBounds.center);
+
+            transform.parent = parentSnappable.transform;
+            transform.position = distancefromMaxBoundPos < distancefromMinBoundPos ? positionFromMaxBoundPos : positionFromMinBoundPos;
 
             ChangeState(STATE_SNAPPED);
         }
 
-        public Snappable GetClosestSnappable(Collider[] colliders, out Vector3 closestPointOnBounds)
+        public Snappable GetClosestSnappable(Collider[] colliders)
         {
             Snappable closestSnappable = null;
             var closestLength = float.MaxValue;
-            closestPointOnBounds = Vector3.zero;
 
             foreach (var currentCollider in colliders)
             {
@@ -146,15 +152,12 @@ namespace MyScripts
                 if (currentSnappable == null || currentSnappable.IsSnapped)
                     continue;
 
-                var currentClosestPointOnBounds = myCollider.ClosestPointOnBounds(currentCollider.transform.position);
-
-                var currentLength = Vector3.Distance(currentCollider.transform.position, currentClosestPointOnBounds);
+                var currentLength = Vector3.Distance(currentCollider.transform.position, myBounds.center);
 
                 if (currentLength < closestLength)
                 {
                     closestLength = currentLength;
                     closestSnappable = currentSnappable;
-                    closestPointOnBounds = currentClosestPointOnBounds;
                 }
             }
 
@@ -164,17 +167,17 @@ namespace MyScripts
 
         public void SnapSnappables()
         {
-            DebugExtension.DebugBounds(myBounds, Color.yellow);
+            //DebugExtension.DebugBounds(myBounds, Color.yellow);
             Collider[] colliders = Physics.OverlapBox(transform.position, myBounds.extents, Quaternion.identity, snappableLayer);
 
             if (colliders.Length > 0)
             {
                 var closestPointOnBounds = Vector3.zero;
-                var closestSnappable = GetClosestSnappable(colliders, out closestPointOnBounds);
+                var closestSnappable = GetClosestSnappable(colliders);
 
                 if (closestSnappable != null)
                 {
-                    closestSnappable.SnapToSnappable(transform, transform.InverseTransformPoint(closestPointOnBounds));
+                    closestSnappable.SnapToSnappable(this);
                     childSnappables.Add(closestSnappable);
                 }
             }
@@ -224,11 +227,6 @@ namespace MyScripts
             return myRenderer.bounds;   
         }
 
-        public Bounds GetRendererLocalBounds()
-        {
-            return myRenderer.localBounds;
-        }
-
         public void UpdateBounds()
         {
             if(childSnappables.Count == 0)
@@ -237,16 +235,24 @@ namespace MyScripts
             }
             else
             {
-                List<Vector3> allPoints = new List<Vector3>();
+                Bounds mainBounds = myRenderer.bounds;
+                //DebugExtension.DrawBounds(mainBounds, Color.red);
 
-                foreach(var childSnappable in childSnappables)
+                List<Vector3> points = new List<Vector3>();
+                points.Add(mainBounds.center);
+                points.Add(mainBounds.min);
+                points.Add(mainBounds.max);
+
+                foreach (Snappable childSnappable in childSnappables)
                 {
-                    Bounds rendererBounds = childSnappable.GetRendererLocalBounds();
-                    allPoints.Add(rendererBounds.max);
-                    allPoints.Add(rendererBounds.min);
+                    Bounds childBounds = childSnappable.myRenderer.bounds;
+
+                    points.Add(childBounds.max);
+                    points.Add(childBounds.min);
                 }
 
-                myBounds = GeometryUtility.CalculateBounds(allPoints.ToArray(), transform.localToWorldMatrix);
+                myBounds = GeometryUtility.CalculateBounds(points.ToArray(), Matrix4x4.identity);
+                //DebugExtension.DrawBounds(myBounds, Color.blue);
             }
         }
 
