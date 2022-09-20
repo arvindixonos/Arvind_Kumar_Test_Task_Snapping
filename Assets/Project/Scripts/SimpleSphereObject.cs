@@ -47,7 +47,7 @@ namespace MyScripts
         public Snappable GetClosestSnappable(Collider[] colliders, out Vector3 closestPointOnBounds)
         {
             Snappable closestSnappable = null;
-            float closestLength = float.MaxValue;
+            var closestLength = float.MaxValue;
             closestPointOnBounds = Vector3.zero;
 
             foreach (var currentCollider in colliders)
@@ -59,7 +59,7 @@ namespace MyScripts
 
                 var currentClosestPointOnBounds = mySphereCollider.ClosestPointOnBounds(currentCollider.transform.position);
 
-                float currentLength = Vector3.Distance(currentCollider.transform.position, currentClosestPointOnBounds);
+                var currentLength = Vector3.Distance(currentCollider.transform.position, currentClosestPointOnBounds);
 
                 if(currentLength < closestLength)
                 {
