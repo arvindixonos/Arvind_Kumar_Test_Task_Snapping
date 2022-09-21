@@ -6,12 +6,12 @@ namespace MyScripts
 {
     public class StateMachine
     {
-        public object ownerObject;
+        private object ownerObject;
 
-        public IState currentState;
-        public IState previousState;
+        private IState currentState;
+        private IState previousState;
 
-        public Dictionary<string, IState> statesList = new Dictionary<string, IState>();
+        private Dictionary<string, IState> statesList = new Dictionary<string, IState>();
     
         public StateMachine(object ownerObject)
         {
@@ -59,17 +59,6 @@ namespace MyScripts
         public void AddState(string stateName, IState state)
         {
             statesList.Add(stateName, state);
-        }
-
-        public string GetCurrentStateName()
-        {
-            foreach(KeyValuePair<string, IState> keyValuePair in statesList)
-            {
-                if(currentState == keyValuePair.Value)
-                    return keyValuePair.Key;
-            }
-
-            return string.Empty;
         }
     }
 }

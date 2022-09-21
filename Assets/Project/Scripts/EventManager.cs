@@ -5,7 +5,6 @@ using UnityEngine.UIElements;
 
 namespace MyScripts
 {
-
     public enum eEventType
     {
         EVENT_LOGIC,
@@ -19,11 +18,11 @@ namespace MyScripts
         public delegate void LogicEvent(Dictionary<string, object> message);
         public static LogicEvent OnLogicEvent;
 
-        public delegate void InputEvent(Dictionary<string, object> message);
-        public static InputEvent OnInputEvent;
+        //public delegate void InputEvent(Dictionary<string, object> message);
+        //public static InputEvent OnInputEvent;
 
-        public delegate void UIEvent(Dictionary<string, object> message);
-        public static UIEvent OnUIEvent;
+        //public delegate void UIEvent(Dictionary<string, object> message);
+        //public static UIEvent OnUIEvent;
 
         private void RaiseEvent(eEventType eventType, object message)
         {
@@ -36,19 +35,19 @@ namespace MyScripts
                     }
                     break;
 
-                case eEventType.EVENT_INPUT:
-                    if (OnInputEvent != null)
-                    {
-                        OnInputEvent((Dictionary<string, object>)message);
-                    }
-                    break;
+                //case eEventType.EVENT_INPUT:
+                //    if (OnInputEvent != null)
+                //    {
+                //        OnInputEvent((Dictionary<string, object>)message);
+                //    }
+                //    break;
 
-                case eEventType.EVENT_UI:
-                    if (OnUIEvent != null)
-                    {
-                        OnUIEvent((Dictionary<string, object>)message);
-                    }
-                    break;
+                //case eEventType.EVENT_UI:
+                //    if (OnUIEvent != null)
+                //    {
+                //        OnUIEvent((Dictionary<string, object>)message);
+                //    }
+                //    break;
             }
         }
 
@@ -62,52 +61,52 @@ namespace MyScripts
             OnLogicEvent -= logicEventHandler;
         }
 
-        public void RaiseLogicEvent(string message, object parameter)
+        public void RaiseLogicEvent(string message, object parameter = null)
         {
-            Dictionary<string, object> eventMap = new Dictionary<string, object>();
+            var eventMap = new Dictionary<string, object>();
             eventMap["eventname"] = message;
             eventMap["parameter"] = parameter;
 
             RaiseEvent(eEventType.EVENT_LOGIC, eventMap);
         }
 
-        public void SubscribeInputEvent(InputEvent inputEventHandler)
-        {
-            OnInputEvent += inputEventHandler;
-        }
+        //public void SubscribeInputEvent(InputEvent inputEventHandler)
+        //{
+        //    OnInputEvent += inputEventHandler;
+        //}
 
-        public void UnsubscribeInputEvent(InputEvent inputEventHandler)
-        {
-            OnInputEvent -= inputEventHandler;
-        }
+        //public void UnsubscribeInputEvent(InputEvent inputEventHandler)
+        //{
+        //    OnInputEvent -= inputEventHandler;
+        //}
 
-        public void RaiseInputEvent(string message, object parameter)
-        {
-            Dictionary<string, object> eventMap = new Dictionary<string, object>();
-            eventMap["eventname"] = message;
-            eventMap["parameter"] = parameter;
+        //public void RaiseInputEvent(string message, object parameter = null)
+        //{
+        //    var eventMap = new Dictionary<string, object>();
+        //    eventMap["eventname"] = message;
+        //    eventMap["parameter"] = parameter;
 
-            RaiseEvent(eEventType.EVENT_INPUT, eventMap);
-        }
+        //    RaiseEvent(eEventType.EVENT_INPUT, eventMap);
+        //}
 
 
-        public void SubscribeUIEvent(UIEvent uiEventHandler)
-        {
-            OnUIEvent += uiEventHandler;
-        }
+        //public void SubscribeUIEvent(UIEvent uiEventHandler)
+        //{
+        //    OnUIEvent += uiEventHandler;
+        //}
 
-        public void UnsubscribeUIEvent(UIEvent uiEventHandler)
-        {
-            OnUIEvent -= uiEventHandler;
-        }
+        //public void UnsubscribeUIEvent(UIEvent uiEventHandler)
+        //{
+        //    OnUIEvent -= uiEventHandler;
+        //}
 
-        public void RaiseUIEvent(string message, object parameter)
-        {
-            Dictionary<string, object> eventMap = new Dictionary<string, object>();
-            eventMap["eventname"] = message;
-            eventMap["parameter"] = parameter;
+        //public void RaiseUIEvent(string message, object parameter = null)
+        //{
+        //    var eventMap = new Dictionary<string, object>();
+        //    eventMap["eventname"] = message;
+        //    eventMap["parameter"] = parameter;
 
-            RaiseEvent(eEventType.EVENT_UI, eventMap);
-        }
+        //    RaiseEvent(eEventType.EVENT_UI, eventMap);
+        //}
     }
 }

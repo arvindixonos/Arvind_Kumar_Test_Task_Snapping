@@ -12,7 +12,7 @@ namespace MyScripts
     {
         public void EnterState(object targetObject)
         {
-            Snappable targetSnappable = targetObject as Snappable;
+            var targetSnappable = targetObject as Snappable;
 
             targetSnappable.ChangeColorToRest();
             targetSnappable.DisableKinemactic();
@@ -32,7 +32,7 @@ namespace MyScripts
     {
         public void EnterState(object targetObject)
         {
-            Snappable targetSnappable = targetObject as Snappable;
+            var targetSnappable = targetObject as Snappable;
 
             targetSnappable.ChangeColorToSnapped();
             targetSnappable.EnableKinematic();
@@ -52,7 +52,7 @@ namespace MyScripts
     {
         public void EnterState(object targetObject)
         {
-            Snappable targetSnappable = targetObject as Snappable;
+            var targetSnappable = targetObject as Snappable;
 
             targetSnappable.ChangeColorToSelected();
         }
@@ -63,7 +63,7 @@ namespace MyScripts
 
         public void UpdateState(object targetObject)
         {
-            Snappable targetSnappable = targetObject as Snappable;
+            var targetSnappable = targetObject as Snappable;
 
             targetSnappable.UpdateBounds();
             targetSnappable.FollowMouse();
@@ -85,6 +85,7 @@ namespace MyScripts
 
         private Vector3 targetPosition;
         private RaycastHit hit;
+
         public LayerMask hittableLayer;
         public LayerMask snappableLayer;
 
@@ -98,7 +99,7 @@ namespace MyScripts
             }
         }
 
-        public StateMachine stateMachine;
+        private StateMachine stateMachine;
 
         [SerializeField]
         private string currentStateName;
@@ -118,7 +119,7 @@ namespace MyScripts
             InitStateMachine();
         }
 
-        public void InitStateMachine()
+        private void InitStateMachine()
         {
             stateMachine = new StateMachine(this);
             stateMachine.AddState(STATE_REST, new Snappable_State_Rest());
@@ -133,7 +134,7 @@ namespace MyScripts
             currentStateName = stateMachine.ChangeState(stateName);
         }
 
-        public void SnapToSnappable(Snappable parentSnappable)
+        private void SnapToSnappable(Snappable parentSnappable)
         {
             UpdateBounds();
 
@@ -148,7 +149,7 @@ namespace MyScripts
             ChangeState(STATE_SNAPPED);
         }
 
-        public Snappable GetClosestSnappable(Collider[] colliders)
+        private Snappable GetClosestSnappable(Collider[] colliders)
         {
             Snappable closestSnappable = null;
             var closestLength = float.MaxValue;
@@ -206,7 +207,7 @@ namespace MyScripts
             ChangeState(STATE_REST);
         }
 
-        public void Update()
+        private void Update()
         {
             stateMachine.UpdateCurrentState();
         }
@@ -246,7 +247,7 @@ namespace MyScripts
             }
             else
             {
-                Bounds mainBounds = myRenderer.bounds;
+                var mainBounds = myRenderer.bounds;
                 //DebugExtension.DrawBounds(mainBounds, Color.red);
 
                 List<Vector3> points = new List<Vector3>();
@@ -254,9 +255,9 @@ namespace MyScripts
                 points.Add(mainBounds.min);
                 points.Add(mainBounds.max);
 
-                foreach (Snappable childSnappable in childSnappables)
+                foreach (var childSnappable in childSnappables)
                 {
-                    Bounds childBounds = childSnappable.myRenderer.bounds;
+                    var childBounds = childSnappable.myRenderer.bounds;
 
                     points.Add(childBounds.max);
                     points.Add(childBounds.min);
@@ -279,22 +280,22 @@ namespace MyScripts
             }
         }
 
-        public void OnMouseDown()
+        private void OnMouseDown()
         {
             if (currentStateName.Equals(STATE_SNAPPED))
                 return;
 
-            Manager.Instance.currentSelectedSnappable = this;
+            EventManager.Instance.RaiseLogicEvent("Selected Snappable", this);
 
             ChangeState(STATE_FOLLOW_MOUSE);
         }
 
-        public void OnMouseUp()
+        private void OnMouseUp()
         {
             if (currentStateName.Equals(STATE_SNAPPED))
                 return;
 
-            Manager.Instance.currentSelectedSnappable = null;
+            EventManager.Instance.RaiseLogicEvent("Deselect Current Snappable");
 
             ChangeState(STATE_REST);
         }
@@ -317,9 +318,9 @@ namespace MyScripts
             myRenderer.material.DOColor(selectedColor, 0.5f);
         }
 
-        public void LerpToTargetPosition()
+        private void LerpToTargetPosition()
         {
-            float distancetocover = (targetPosition - transform.position).sqrMagnitude;
+            var distancetocover = (targetPosition - transform.position).sqrMagnitude;
             if (distancetocover < 0.01f)
                 return;
 

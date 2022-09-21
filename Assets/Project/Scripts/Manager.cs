@@ -13,7 +13,7 @@ namespace MyScripts
     {
         public void EnterState(object targetObject)
         {
-            Manager targetManager = targetObject as Manager;
+            var targetManager = targetObject as Manager;
 
             targetManager.EnterMenu();
         }
@@ -31,7 +31,7 @@ namespace MyScripts
     {
         public void EnterState(object targetObject)
         {
-            Manager targetManager = targetObject as Manager;
+            var targetManager = targetObject as Manager;
 
             targetManager.EnterGame();
         }
@@ -57,7 +57,7 @@ namespace MyScripts
 
         public Transform[] snappableSpawnPoints;
 
-        public Snappable currentSelectedSnappable;
+        private Snappable currentSelectedSnappable;
 
         private StateMachine stateMachine;
 
@@ -69,12 +69,70 @@ namespace MyScripts
         {
             base.Awake();
 
-            mainCanvas.alpha = 0f;
-
             InitStateMachine();
         }
 
-        public void InitStateMachine()
+        private void OnEnable()
+        {
+            EventManager.Instance.SubscribeLogicEvent(LogicEvent);
+        }
+
+        private void OnDisable()
+        {
+            EventManager.Instance.UnsubscribeLogicEvent(LogicEvent);
+        }
+
+        private void LogicEvent(Dictionary<string, object> message)
+        {
+            switch (message["eventname"])
+            {
+                case "Change State to Game":
+                    {
+                        if (currentStateName.Equals(STATE_MENU))
+                        {
+                            ChangeState(STATE_GAME);
+                        }
+
+                        break;
+                    }
+
+                case "Snap Snappables":
+                    {
+                        if (currentSelectedSnappable != null)
+                        {
+                            currentSelectedSnappable.SnapSnappables();
+                        }
+
+                        break;
+                    }
+
+                case "Release All Snappables":
+                    {
+                        ReleaseAllSnappables();
+                        break;
+                    }
+
+                case "Reload Scene":
+                    {
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                        break;
+                    }
+
+                case "Selected Snappable":
+                    {
+                        currentSelectedSnappable = message["parameter"] as Snappable;
+                        break;
+                    }
+
+                case "Deselect Current Snappable":
+                    {
+                        currentSelectedSnappable = null;
+                        break;
+                    }
+            }
+        }
+
+        private void InitStateMachine()
         {
             stateMachine = new StateMachine(this);
             stateMachine.AddState(STATE_MENU, new Manager_State_Menu());
@@ -91,8 +149,7 @@ namespace MyScripts
         public void ShowUI()
         {
             mainCanvas.DOKill();
-            mainCanvas.alpha = 0f;
-            mainCanvas.DOFade(1f, 0.5f).SetDelay(1f);
+            mainCanvas.DOFade(1f, 0.5f).SetDelay(0.2f);
         }
 
         public void HideUI()
@@ -133,45 +190,39 @@ namespace MyScripts
             }
         }
 
-        void ReleaseAllSnappables()
+        private void ReleaseAllSnappables()
         {
-            foreach(Snappable snappable in snappableObjectPool)
+            foreach(var snappable in snappableObjectPool)
             {
                 snappable.ClearChildSnappables();
                 snappable.ReleaseFromSnappedObject();
             }
         }
 
-        public void Update()
+        private void Update()
         {
             // Left Mouse Click Input
-            if(Input.GetMouseButtonDown(0))
+            if(Input.GetKeyDown(KeyCode.Mouse0))
             {
-                if(currentStateName.Equals(STATE_MENU))
-                {
-                    ChangeState(STATE_GAME);
-                }
+                EventManager.Instance.RaiseLogicEvent("Change State to Game");
             }
 
             // Shift Input
             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
             {
-                if(currentSelectedSnappable != null)
-                {
-                    currentSelectedSnappable.SnapSnappables();
-                }
+                EventManager.Instance.RaiseLogicEvent("Snap Snappables");
             }
-
+          
             // Alt Input
             if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
             {
-                ReleaseAllSnappables();
+                EventManager.Instance.RaiseLogicEvent("Release All Snappables");
             }
 
             // Alt Input
             if (Input.GetKeyDown(KeyCode.R))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                EventManager.Instance.RaiseLogicEvent("Reload Scene");
             }
         }
 
