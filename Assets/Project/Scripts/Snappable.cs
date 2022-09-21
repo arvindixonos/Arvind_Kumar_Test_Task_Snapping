@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+using DG.Tweening;
+
 namespace MyScripts
 {
     public class Snappable_State_Rest : IState
@@ -12,6 +14,7 @@ namespace MyScripts
         {
             Snappable targetSnappable = targetObject as Snappable;
 
+            targetSnappable.ChangeColorToRest();
             targetSnappable.DisableKinemactic();
             targetSnappable.DisableTrigger();
         }
@@ -31,6 +34,7 @@ namespace MyScripts
         {
             Snappable targetSnappable = targetObject as Snappable;
 
+            targetSnappable.ChangeColorToSnapped();
             targetSnappable.EnableKinematic();
             targetSnappable.EnableTrigger();
         }
@@ -48,6 +52,9 @@ namespace MyScripts
     {
         public void EnterState(object targetObject)
         {
+            Snappable targetSnappable = targetObject as Snappable;
+
+            targetSnappable.ChangeColorToSelected();
         }
 
         public void ExitState(object targetObject)
@@ -71,6 +78,10 @@ namespace MyScripts
         public const string STATE_FOLLOW_MOUSE = "Follow Mouse";
 
         public float lerpSpeed = 5f;
+
+        public Color selectedColor;
+        public Color restColor;
+        public Color snappedColor;
 
         private Vector3 targetPosition;
         private RaycastHit hit;
@@ -286,6 +297,24 @@ namespace MyScripts
             Manager.Instance.currentSelectedSnappable = null;
 
             ChangeState(STATE_REST);
+        }
+
+        public void ChangeColorToRest()
+        {
+            myRenderer.material.DOKill();
+            myRenderer.material.DOColor(restColor, 0.5f);
+        }
+
+        public void ChangeColorToSnapped()
+        {
+            myRenderer.material.DOKill();
+            myRenderer.material.DOColor(snappedColor, 0.5f);
+        }
+
+        public void ChangeColorToSelected()
+        {
+            myRenderer.material.DOKill();
+            myRenderer.material.DOColor(selectedColor, 0.5f);
         }
 
         public void LerpToTargetPosition()
