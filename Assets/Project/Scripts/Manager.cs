@@ -25,18 +25,10 @@ namespace MyScripts
             targetManager.EnterMenu();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="targetObject"></param>
         public void ExitState(object targetObject)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="targetObject"></param>
         public void UpdateState(object targetObject)
         {
         }
@@ -58,18 +50,10 @@ namespace MyScripts
             targetManager.EnterGame();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="targetObject"></param>
         public void ExitState(object targetObject)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="targetObject"></param>
         public void UpdateState(object targetObject)
         {
         }
@@ -122,8 +106,10 @@ namespace MyScripts
         {
             base.Awake();
 
+            // Initializing the statemachine
             InitStateMachine();
 
+            // Set the initial cursor to normal cursor
             SetNormalCursor();
         }
 
