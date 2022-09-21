@@ -5,8 +5,6 @@ using UnityEngine.UIElements;
 
 namespace MyScripts
 {
-    #region EVENT TYPES
-
     /// <summary>
     /// Types the events the event manager can handle.
     /// </summary>
@@ -19,8 +17,6 @@ namespace MyScripts
         EVENT_END
     }
 
-    #endregion 
-
     /// <summary>
     /// This function of this class is to pass the events raised to the respective event listeners. This class is a singleton.
     /// Currently InputEvent and LogicEvent are commented as this project is not using it.
@@ -28,8 +24,6 @@ namespace MyScripts
 
     public class EventManager : Singleton<EventManager>
     {
-        #region VARIABLES
-
         // Logic Event handler and its respective delegate. Delegate object is static.
         public delegate void LogicEvent(Dictionary<string, object> message);
         public static LogicEvent OnLogicEvent;
@@ -42,9 +36,6 @@ namespace MyScripts
         public delegate void UIEvent(Dictionary<string, object> message);
         public static UIEvent OnUIEvent;
 
-        #endregion
-
-        #region RAISE EVENT
         /// <summary>
         /// Private function which raise the event according to the type of the event and along with its message parameter.
         /// </summary>
@@ -76,8 +67,6 @@ namespace MyScripts
                     break;
             }
         }
-
-        #endregion
 
         #region LOGIC EVENT
 
