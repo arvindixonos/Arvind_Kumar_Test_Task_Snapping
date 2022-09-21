@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using UnityEngine.Rendering;
 using DG.Tweening;
 
 
@@ -64,6 +65,8 @@ namespace MyScripts
     /// </summary>
     public class Manager : Singleton<Manager>
     {
+        public RenderPipelineAsset renderPipelineAsset;
+
         // Consts for state names.
         public const string STATE_MENU = "Menu";
         public const string STATE_GAME = "Game";
