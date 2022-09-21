@@ -2,40 +2,118 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
+using UnityEngine.SceneManagement;
+
+using DG.Tweening;
 
 
 namespace MyScripts
 {
+    public class Manager_State_Menu : IState
+    {
+        public void EnterState(object targetObject)
+        {
+            Manager targetManager = targetObject as Manager;
+
+            targetManager.EnterMenu();
+        }
+
+        public void ExitState(object targetObject)
+        {
+        }
+
+        public void UpdateState(object targetObject)
+        {
+        }
+    }
+
+    public class Manager_State_Game : IState
+    {
+        public void EnterState(object targetObject)
+        {
+            Manager targetManager = targetObject as Manager;
+
+            targetManager.EnterGame();
+        }
+
+        public void ExitState(object targetObject)
+        {
+        }
+
+        public void UpdateState(object targetObject)
+        {
+        }
+    }
+
     public class Manager : Singleton<Manager>
     {
-        public Camera targetCamera;
+        public const string STATE_MENU = "Menu";
+        public const string STATE_GAME = "Game";
+
+        public CanvasGroup mainCanvas;
 
         public Snappable[] snappablePrefabs;
         private Snappable[] snappableObjectPool;
 
         public Transform[] snappableSpawnPoints;
 
-        private Vector3 simpleObjecttargetPosition;
-        private RaycastHit hit;
-
-        public LayerMask hittableLayer;
-
         public Snappable currentSelectedSnappable;
+
+        private StateMachine stateMachine;
+
+        [SerializeField]
+        private string currentStateName;
+
 
         public override void Awake()
         {
             base.Awake();
 
-            if(targetCamera == null)
-            {
-                targetCamera = Camera.main;
-            }
+            mainCanvas.alpha = 0f;
 
-            PopulateSnappablesOnTable();
+            InitStateMachine();
         }
 
-        public void PopulateSnappablesOnTable()
+        public void InitStateMachine()
+        {
+            stateMachine = new StateMachine(this);
+            stateMachine.AddState(STATE_MENU, new Manager_State_Menu());
+            stateMachine.AddState(STATE_GAME, new Manager_State_Game());
+
+            ChangeState(STATE_MENU);
+        }
+
+        private void ChangeState(string stateName)
+        {
+            currentStateName = stateMachine.ChangeState(stateName);
+        }
+
+        public void ShowUI()
+        {
+            mainCanvas.DOKill();
+            mainCanvas.alpha = 0f;
+            mainCanvas.DOFade(1f, 0.5f).SetDelay(1f);
+        }
+
+        public void HideUI()
+        {
+            mainCanvas.DOKill();
+            mainCanvas.DOFade(0f, 1f);
+        }
+
+        public void EnterMenu()
+        {
+            ShowUI();
+        }
+
+        public void EnterGame()
+        {
+            HideUI();
+
+            PopulateSnappables();
+        }
+
+        private void PopulateSnappables()
         {
             var numSnappableSpawnPoints = snappableSpawnPoints.Length;
 
@@ -57,9 +135,7 @@ namespace MyScripts
 
         void ReleaseAllSnappables()
         {
-            Snappable[] snappables = FindObjectsOfType<Snappable>();
-            
-            foreach(Snappable snappable in snappables)
+            foreach(Snappable snappable in snappableObjectPool)
             {
                 snappable.ClearChildSnappables();
                 snappable.ReleaseFromSnappedObject();
@@ -68,6 +144,15 @@ namespace MyScripts
 
         public void Update()
         {
+            // Left Mouse Click Input
+            if(Input.GetMouseButtonDown(0))
+            {
+                if(currentStateName.Equals(STATE_MENU))
+                {
+                    ChangeState(STATE_GAME);
+                }
+            }
+
             // Shift Input
             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
             {
@@ -81,6 +166,12 @@ namespace MyScripts
             if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
             {
                 ReleaseAllSnappables();
+            }
+
+            // Alt Input
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
         }
 
