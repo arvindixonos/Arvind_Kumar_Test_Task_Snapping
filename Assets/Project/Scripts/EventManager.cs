@@ -151,7 +151,7 @@ namespace MyScripts
 
         #endregion
 
-        #region UI Event
+        #region UI EVENT
 
         /// <summary>
         /// Helper function for any object to subscribe to the UI event.

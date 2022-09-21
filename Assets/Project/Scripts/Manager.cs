@@ -57,6 +57,8 @@ namespace MyScripts
         public Texture2D selectedCursor;
         public Texture2D invalidCursor;
 
+        private int currentCursorID = -1;
+
         public Snappable[] snappablePrefabs;
         private Snappable[] snappableObjectPool;
 
@@ -111,7 +113,15 @@ namespace MyScripts
 
         private void SetCursor(Texture2D targetCursor)
         {
-            Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
+            if(currentSelectedSnappable == null)
+            {
+                if (currentCursorID != targetCursor.GetInstanceID())
+                {
+                    currentCursorID = targetCursor.GetInstanceID();
+
+                    Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
+                }
+            }
         }
 
         private void LogicEvent(Dictionary<string, object> message)
