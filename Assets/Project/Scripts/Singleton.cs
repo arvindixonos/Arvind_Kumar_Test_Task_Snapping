@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace MyScripts
 {
+    /// <summary>
+    /// Templated singleton class.
+    /// </summary>
+    /// <typeparam name="T">class template.</typeparam>
     public class Singleton<T> : MonoBehaviour where T : Component
     {
         private static T instance;
@@ -25,6 +29,9 @@ namespace MyScripts
             }
         }
 
+        /// <summary>
+        /// If the instance is null then assign this instance as the first instance else destroy the new instance.
+        /// </summary>
         public virtual void Awake()
         {
             if (instance == null)
