@@ -52,6 +52,11 @@ namespace MyScripts
 
         public CanvasGroup mainCanvas;
 
+        public Texture2D normalCursor;
+        public Texture2D hoverCursor;
+        public Texture2D selectedCursor;
+        public Texture2D invalidCursor;
+
         public Snappable[] snappablePrefabs;
         private Snappable[] snappableObjectPool;
 
@@ -70,6 +75,8 @@ namespace MyScripts
             base.Awake();
 
             InitStateMachine();
+
+            SetNormalCursor();
         }
 
         private void OnEnable()
@@ -80,6 +87,31 @@ namespace MyScripts
         private void OnDisable()
         {
             EventManager.Instance.UnsubscribeLogicEvent(LogicEvent);
+        }
+
+        public void SetNormalCursor()
+        {
+            SetCursor(normalCursor);
+        }
+
+        public void SetHoverCursor()
+        {
+            SetCursor(hoverCursor);
+        }
+
+        public void SetSelectedCursor()
+        {
+            SetCursor(selectedCursor);
+        }
+
+        public void SetInvalidCursor()
+        {
+            SetCursor(invalidCursor);
+        }
+
+        private void SetCursor(Texture2D targetCursor)
+        {
+            Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
         }
 
         private void LogicEvent(Dictionary<string, object> message)
@@ -127,6 +159,48 @@ namespace MyScripts
                 case "Deselect Current Snappable":
                     {
                         currentSelectedSnappable = null;
+                        break;
+                    }
+
+                case "Mouse Hover Snappable":
+                    {
+                        SetHoverCursor();
+                        break;
+                    }
+
+                case "Mouse Down Snappable":
+                    {
+                        SetSelectedCursor();
+                        break;
+                    }
+
+                case "Mouse Up Snappable":
+                    {
+                        SetNormalCursor();
+                        break;
+                    }
+
+                case "Mouse Hover Snapped":
+                    {
+                        SetInvalidCursor();
+                        break;
+                    }
+
+                case "Mouse Down Snapped":
+                    {
+                        SetInvalidCursor();
+                        break;
+                    }
+
+                case "Mouse Up Snapped":
+                    {
+                        SetNormalCursor();
+                        break;
+                    }
+
+                case "Mouse Exit":
+                    {
+                        SetNormalCursor();
                         break;
                     }
             }

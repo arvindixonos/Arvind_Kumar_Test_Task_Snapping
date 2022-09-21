@@ -283,8 +283,12 @@ namespace MyScripts
         private void OnMouseDown()
         {
             if (currentStateName.Equals(STATE_SNAPPED))
+            {
+                EventManager.Instance.RaiseLogicEvent("Mouse Down Snapped");
                 return;
+            }
 
+            EventManager.Instance.RaiseLogicEvent("Mouse Down Snappable");
             EventManager.Instance.RaiseLogicEvent("Selected Snappable", this);
 
             ChangeState(STATE_FOLLOW_MOUSE);
@@ -293,11 +297,44 @@ namespace MyScripts
         private void OnMouseUp()
         {
             if (currentStateName.Equals(STATE_SNAPPED))
+            {
+                EventManager.Instance.RaiseLogicEvent("Mouse Up Snapped");
                 return;
+            }
 
+            EventManager.Instance.RaiseLogicEvent("Mouse Up Snappable");
             EventManager.Instance.RaiseLogicEvent("Deselect Current Snappable");
 
             ChangeState(STATE_REST);
+        }
+
+        private void OnMouseOver()
+        {
+            if(currentStateName.Equals(STATE_FOLLOW_MOUSE))
+            {
+                return;
+            }
+
+            if (currentStateName.Equals(STATE_SNAPPED))
+            {
+                EventManager.Instance.RaiseLogicEvent("Mouse Hover Snapped");
+                return;
+            }
+            else
+            {
+                EventManager.Instance.RaiseLogicEvent("Mouse Hover Snappable");
+               
+            }
+        }
+
+        private void OnMouseExit()
+        {
+            if (currentStateName.Equals(STATE_FOLLOW_MOUSE))
+            {
+                return;
+            }
+
+            EventManager.Instance.RaiseLogicEvent("Mouse Exit");
         }
 
         public void ChangeColorToRest()
