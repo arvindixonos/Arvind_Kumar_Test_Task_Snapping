@@ -1169,7 +1169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca35397ae339e88449f18417673b74e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderPipelineAsset: {fileID: 0}
   mainCanvas: {fileID: 1986086183}
   normalCursor: {fileID: 2800000, guid: b2c310b97a2aa5c4382417e9eb5ba61b, type: 3}
   hoverCursor: {fileID: 2800000, guid: 013c061077e34414ab3de3a25d0ed7f0, type: 3}

@@ -65,8 +65,6 @@ namespace MyScripts
     /// </summary>
     public class Manager : Singleton<Manager>
     {
-        public RenderPipelineAsset renderPipelineAsset;
-
         // Consts for state names.
         public const string STATE_MENU = "Menu";
         public const string STATE_GAME = "Game";
@@ -416,7 +414,7 @@ namespace MyScripts
 
             for (int i = 0; i < numSnappableSpawnPoints; i++)
             {
-                var randomSnappable = snappablePrefabs[Random.Range(0, numSnappableObjectPrefabs - 1)];
+                var randomSnappable = snappablePrefabs[Random.Range(0, numSnappableObjectPrefabs)];
 
                 var randomRotation = Quaternion.Euler(Random.Range(-180f, 180f), Random.Range(-180f, 180f), Random.Range(-180f, 180f));
 
