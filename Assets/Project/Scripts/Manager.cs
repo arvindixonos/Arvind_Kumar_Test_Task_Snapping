@@ -147,12 +147,6 @@ namespace MyScripts
                 EventManager.Instance.RaiseLogicEvent("Snap Snappables");
             }
 
-            // Alt Input
-            if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
-            {
-                EventManager.Instance.RaiseLogicEvent("Release All Snappables");
-            }
-
             // R Input
             if (Input.GetKeyDown(KeyCode.R))
             {
@@ -239,16 +233,9 @@ namespace MyScripts
                         // If current selected snappable is not null, try to snap the nearest snappable to it.
                         if (currentSelectedSnappable != null)
                         {
-                            currentSelectedSnappable.SnapSnappables();
+                            currentSelectedSnappable.SnapToCurrentTarget();
                         }
 
-                        break;
-                    }
-
-                case "Release All Snappables":
-                    {
-                        // Set all the snappables to it initial state of rest and nullifies the parent snappable.
-                        ReleaseAllSnappables();
                         break;
                     }
 
@@ -421,18 +408,6 @@ namespace MyScripts
                 snappableObjectPool[i] = Snappable.Instantiate(randomSnappable, restZones[i].position, randomRotation);
 
                 snappableObjectPool[i].InitSnappable(restZones[i].position);
-            }
-        }
-
-        /// <summary>
-        /// Clears the child snappables list and releases all the snappables in the snappable object pool.
-        /// </summary>
-        private void ReleaseAllSnappables()
-        {
-            foreach(var snappable in snappableObjectPool)
-            {
-                snappable.ClearChildSnappables();
-                snappable.ReleaseFromSnappedObject();
             }
         }
 

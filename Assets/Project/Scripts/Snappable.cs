@@ -93,7 +93,6 @@ namespace MyScripts
         {
             var targetSnappable = targetObject as Snappable;
 
-            targetSnappable.UpdateBounds();
             targetSnappable.FollowMouse();
         }
     }
@@ -173,10 +172,6 @@ namespace MyScripts
         private Collider myCollider;
         private Renderer myRenderer;
 
-        // List of snappables attached to this snappable.
-        private List<Snappable> childSnappables = new List<Snappable>();
-
-
         public void InitSnappable(Vector3 startRestZonePosition)
         {
             // Populating the references.
@@ -205,10 +200,17 @@ namespace MyScripts
         {
             print("Entering Trigger: " + other.name);
 
-            if(other.CompareTag(restZoneTagName))
+            if (IsFollowingMouse)
             {
-                restZonePosition = other.transform.position;
-                ChangeState(STATE_IN_RESTZONE);
+                if (other.CompareTag(restZoneTagName))
+                {
+                    if(!(other.bounds.Contains(myCollider.bounds.max) && other.bounds.Contains(myCollider.bounds.min)))
+                    {
+                        restZonePosition = other.transform.position;
+
+                        ChangeState(STATE_IN_RESTZONE);
+                    }
+                }
             }
         }
 
@@ -219,12 +221,20 @@ namespace MyScripts
 
         private void OnTriggerExit(Collider other)
         {
-            print("Exiting Trigger: " + other.name);
+            if (IsFollowingMouse)
+            {
+                if (other.CompareTag(restZoneTagName))
+                {
+                    print("Exiting Trigger: " + other.name);
+
+                    //myRigidBody.detectCollisions = true;
+                }
+            }
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            print("Entering Collision with: " + collision.gameObject.name);
+            //print("Entering Collision with: " + collision.gameObject.name);
         }
 
         private void OnCollisionStay(Collision collision)
@@ -238,18 +248,18 @@ namespace MyScripts
             {
                 if(contactPoint.separation < seperation)
                 {
-                    print("Setting Seperation");
+                    //print("Setting Seperation");
 
                     seperation = contactPoint.separation;
                 }
             }
 
-            print("Staying Collision with: " + collision.gameObject.name);
+            //print("Staying Collision with: " + collision.gameObject.name);
         }
 
         private void OnCollisionExit(Collision collision)
         {
-            print("Exiting Collision with: " + collision.gameObject.name);
+            //print("Exiting Collision with: " + collision.gameObject.name);
         }
 
         #region STATE MACHINE
@@ -282,98 +292,11 @@ namespace MyScripts
         #region SNAPPABLES
 
         /// <summary>
-        /// Snaps to the closest point on the bounds of the parent snappable and changes state to snapped.
+        /// 
         /// </summary>
-        /// <param name="parentSnappable">Parent Snappable to snap to.</param>
-        private void SnapToSnappable(Snappable parentSnappable)
+        public void SnapToCurrentTarget()
         {
-            // Update our bounds.
-            UpdateBounds();
-
-            // Get the max point and min point on bounds.
-            var positionFromMaxBoundPos = parentSnappable.myBounds.ClosestPoint(myBounds.max);
-            var positionFromMinBoundPos = parentSnappable.myBounds.ClosestPoint(myBounds.min);
-            var distancefromMaxBoundPos = Vector3.SqrMagnitude(positionFromMaxBoundPos - parentSnappable.myBounds.center);
-            var distancefromMinBoundPos = Vector3.SqrMagnitude(positionFromMinBoundPos - parentSnappable.myBounds.center);
-
-            // Snap to the closest position to the parent snappable.
-            transform.parent = parentSnappable.transform;
-            transform.position = distancefromMaxBoundPos < distancefromMinBoundPos ? positionFromMaxBoundPos : positionFromMinBoundPos;
-
-            // Change state to snapped.
-            ChangeState(STATE_SNAPPED);
-        }
-
-        /// <summary>
-        /// Get the closest snappable from the list of colliders hit.
-        /// </summary>
-        /// <param name="colliders">List of colliders hit using OverlapBox.</param>
-        /// <returns>returns closest snappable if found or else null. </returns>
-        private Snappable GetClosestSnappable(Collider[] colliders)
-        {
-            Snappable closestSnappable = null;
-            var closestLength = float.MaxValue;
-
-            foreach (var currentCollider in colliders)
-            {
-                if (currentCollider == myCollider)
-                    continue;
-
-                var currentSnappable = currentCollider.GetComponent<Snappable>();
-
-                if (currentSnappable == null || currentSnappable.IsSnapped)
-                    continue;
-
-                var currentLength = Vector3.Distance(currentCollider.transform.position, myBounds.center);
-
-                if (currentLength < closestLength)
-                {
-                    closestLength = currentLength;
-                    closestSnappable = currentSnappable;
-                }
-            }
-
-            return closestSnappable;
-        }
-
-        /// <summary>
-        /// OverlapBox(AABB) using our bounds on the snappable layer.
-        /// </summary>
-        public void SnapSnappables()
-        {
-            //DebugExtension.DebugBounds(myBounds, Color.yellow);
-            Collider[] colliders = Physics.OverlapBox(transform.position, myBounds.extents, Quaternion.identity, snappableLayer);
             
-            if (colliders.Length > 0)
-            {
-                // Find the closest snappable.
-                var closestSnappable = GetClosestSnappable(colliders);
-
-                // If found, snap it to us and add it to the child snappables list.
-                if (closestSnappable != null)
-                {
-                    closestSnappable.SnapToSnappable(this);
-                    childSnappables.Add(closestSnappable);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Clear all child snappables from the list.
-        /// </summary>
-        public void ClearChildSnappables()
-        {
-            childSnappables.Clear();
-        }
-
-        /// <summary>
-        /// Release us if we are snapped to any parent and make our state to rest.
-        /// </summary>
-        public void ReleaseFromSnappedObject()
-        {
-            transform.parent = null;
-
-            ChangeState(STATE_IN_RESTZONE);
         }
 
         #endregion
@@ -387,7 +310,7 @@ namespace MyScripts
         {
             ChangeColorToSelected();
 
-            //myRigidBody.isKinematic = false;
+            myRigidBody.isKinematic = false;
         }
 
         /// <summary>
@@ -416,41 +339,6 @@ namespace MyScripts
             return myRenderer.bounds;   
         }
 
-        /// <summary>
-        /// If no snappable is attached to us, then just returns to bounds of the renderer or 
-        /// else calculate the bounds including the child snappables using GeometryUtility.CalculateBounds function.
-        /// </summary>
-        public void UpdateBounds()
-        {
-            if(childSnappables.Count == 0)
-            {
-                myBounds = GetRendererBounds();
-            }
-            else
-            {
-                var mainBounds = myRenderer.bounds;
-                //DebugExtension.DrawBounds(mainBounds, Color.red);
-
-                List<Vector3> points = new List<Vector3>();
-                points.Add(mainBounds.center);
-                points.Add(mainBounds.min);
-                points.Add(mainBounds.max);
-
-                foreach (var childSnappable in childSnappables)
-                {
-                    var childBounds = childSnappable.myRenderer.bounds;
-
-                    // Add min and max point of the child bounds.
-                    points.Add(childBounds.max);
-                    points.Add(childBounds.min);
-                }
-
-                // Calculate new bounds.
-                myBounds = GeometryUtility.CalculateBounds(points.ToArray(), Matrix4x4.identity);
-                //DebugExtension.DrawBounds(myBounds, Color.blue);
-            }
-        }
-
         #endregion
 
         #region FOLLOW MOUSE AND MOUSE EVENTS
@@ -468,7 +356,7 @@ namespace MyScripts
 
                 if(seperation != 0f)
                 {
-                    print("Using Seperation");
+                    //print("Using Seperation");
 
                     targetPosition -= hit.normal * seperation;
                 }
@@ -527,7 +415,7 @@ namespace MyScripts
             EventManager.Instance.RaiseLogicEvent("Mouse Up Snappable");
 
             // If not snapped, raise event "Deselect Current Snappable".
-            EventManager.Instance.RaiseLogicEvent("Deselect Current Snappable");
+            //EventManager.Instance.RaiseLogicEvent("Deselect Current Snappable");
 
             //// Change state to rest.
             //ChangeState(STATE_IN_RESTZONE);
