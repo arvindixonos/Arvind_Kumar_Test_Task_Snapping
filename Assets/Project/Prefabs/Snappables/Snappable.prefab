@@ -55,6 +55,7 @@ MonoBehaviour:
   snappableLayer:
     serializedVersion: 2
     m_Bits: 64
+  restZoneTagName: Rest Zone
   currentStateName: 
 --- !u!54 &-2622680518633671515
 Rigidbody:

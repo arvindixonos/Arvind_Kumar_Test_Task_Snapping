@@ -88,7 +88,7 @@ namespace MyScripts
         private Snappable[] snappableObjectPool;
 
         // Array of snappable snap locations.
-        public Transform[] snappableSpawnPoints;
+        public Transform[] restZones;
 
         // Current Selected Snappable which can snap other objects to itself.
         private Snappable currentSelectedSnappable;
@@ -404,7 +404,7 @@ namespace MyScripts
         /// </summary>
         private void PopulateSnappables()
         {
-            var numSnappableSpawnPoints = snappableSpawnPoints.Length;
+            var numSnappableSpawnPoints = restZones.Length;
 
             snappableObjectPool = new Snappable[numSnappableSpawnPoints];
 
@@ -418,7 +418,9 @@ namespace MyScripts
 
                 var randomRotation = Quaternion.Euler(Random.Range(-180f, 180f), Random.Range(-180f, 180f), Random.Range(-180f, 180f));
 
-                snappableObjectPool[i] = Snappable.Instantiate(randomSnappable, snappableSpawnPoints[i].position, randomRotation);
+                snappableObjectPool[i] = Snappable.Instantiate(randomSnappable, restZones[i].position, randomRotation);
+
+                snappableObjectPool[i].InitSnappable(restZones[i].position);
             }
         }
 

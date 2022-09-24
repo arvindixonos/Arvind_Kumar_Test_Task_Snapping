@@ -10,9 +10,9 @@ using UnityEngine.Analytics;
 namespace MyScripts
 {
     /// <summary>
-    /// Rest state of the snappable.
+    /// Inside Restzone state of the snappable.
     /// </summary>
-    public class Snappable_State_Rest : IState
+    public class Snappable_State_In_RestZone : IState
     {
         /// <summary>
         /// <para>Changes material color to rest color.</para>
@@ -24,9 +24,7 @@ namespace MyScripts
         {
             var targetSnappable = targetObject as Snappable;
 
-            targetSnappable.ChangeColorToRest();
-            targetSnappable.DisableKinemactic();
-            targetSnappable.DisableTrigger();
+            targetSnappable.SetInRestZoneParams();
         }
 
         public void ExitState(object targetObject)
@@ -54,9 +52,8 @@ namespace MyScripts
         {
             var targetSnappable = targetObject as Snappable;
 
-            targetSnappable.ChangeColorToSnapped();
-            targetSnappable.EnableKinematic();
-            targetSnappable.EnableTrigger();
+            //targetSnappable.ChangeColorToSnapped();
+            //targetSnappable.SetOutRestZoneParams();
         }
 
         public void ExitState(object targetObject)
@@ -81,7 +78,7 @@ namespace MyScripts
         {
             var targetSnappable = targetObject as Snappable;
 
-            targetSnappable.ChangeColorToSelected();
+            targetSnappable.SetFollowMouseParams();
         }
 
         public void ExitState(object targetObject)
@@ -107,7 +104,7 @@ namespace MyScripts
     public class Snappable : MonoBehaviour
     {
         // Consts for state names.
-        public const string STATE_REST = "Rest";
+        public const string STATE_IN_RESTZONE = "In Rest Zone";
         public const string STATE_SNAPPED = "Snapped";
         public const string STATE_FOLLOW_MOUSE = "Follow Mouse";
 
@@ -129,8 +126,21 @@ namespace MyScripts
         // Layer of the snappable
         public LayerMask snappableLayer;
 
+        // Name of the restzone tag
+        public string restZoneTagName;
+        private Vector3 restZonePosition;
+
         // My present bounds. Get updated if any object gets snapped.
         private Bounds myBounds;
+
+        // Accessor for knowing whether the object is inside the rest zone.
+        public bool IsInsideRestZone
+        {
+            get
+            {
+                return currentStateName.Equals(STATE_IN_RESTZONE);
+            }
+        }
 
         // Accessor for knowing whether the object is snapped.
         public bool IsSnapped 
@@ -166,14 +176,17 @@ namespace MyScripts
         // List of snappables attached to this snappable.
         private List<Snappable> childSnappables = new List<Snappable>();
 
-        private void Awake()
+
+        public void InitSnappable(Vector3 startRestZonePosition)
         {
             // Populating the references.
             myRigidBody = GetComponent<Rigidbody>();
-            myCollider = GetComponent<Collider>();  
+            myCollider = GetComponent<Collider>();
             myRenderer = GetComponentInChildren<Renderer>();
 
             myCollider.contactOffset = 0.5f;
+
+            restZonePosition = startRestZonePosition;
 
             // Initializing the statemachine
             InitStateMachine();
@@ -182,12 +195,36 @@ namespace MyScripts
         private void Update()
         {
             // Update our state machine
-            stateMachine.UpdateCurrentState();
+            if (stateMachine != null)
+            {
+                stateMachine.UpdateCurrentState();
+            }
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            print("Entering Trigger: " + other.name);
+
+            if(other.CompareTag(restZoneTagName))
+            {
+                restZonePosition = other.transform.position;
+                ChangeState(STATE_IN_RESTZONE);
+            }
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            //print("Staying Trigger: " + other.name);
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            print("Exiting Trigger: " + other.name);
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            //print("Entering Collision with: " + collision.gameObject.name);
+            print("Entering Collision with: " + collision.gameObject.name);
         }
 
         private void OnCollisionStay(Collision collision)
@@ -207,12 +244,12 @@ namespace MyScripts
                 }
             }
 
-            //print("Staying Collision with: " + collision.gameObject.name);
+            print("Staying Collision with: " + collision.gameObject.name);
         }
 
         private void OnCollisionExit(Collision collision)
         {
-            //print("Exiting Collision with: " + collision.gameObject.name);
+            print("Exiting Collision with: " + collision.gameObject.name);
         }
 
         #region STATE MACHINE
@@ -223,12 +260,12 @@ namespace MyScripts
         private void InitStateMachine()
         {
             stateMachine = new StateMachine(this);
-            stateMachine.AddState(STATE_REST, new Snappable_State_Rest());
+            stateMachine.AddState(STATE_IN_RESTZONE, new Snappable_State_In_RestZone());
             stateMachine.AddState(STATE_SNAPPED, new Snappable_State_Snapped());
             stateMachine.AddState(STATE_FOLLOW_MOUSE, new Snappable_State_FollowMouse());
 
             // Set the initial state to rest.
-            ChangeState(STATE_REST);
+            ChangeState(STATE_IN_RESTZONE);
         }
 
         /// <summary>
@@ -336,45 +373,35 @@ namespace MyScripts
         {
             transform.parent = null;
 
-            ChangeState(STATE_REST);
+            ChangeState(STATE_IN_RESTZONE);
         }
 
         #endregion
 
-        #region KINEMATIC AND TRIGGERS
+        #region PARAMETERS FOR STATES
 
         /// <summary>
-        /// Make the rigibody kinematic and doesn't obey gravity.
-        /// </summary>
-        public void EnableKinematic()
+        /// Set snappable params when the state is Out rest zone.        
+        /// /// </summary>
+        public void SetFollowMouseParams()
         {
-            //myRigidBody.useGravity = false;
+            ChangeColorToSelected();
+
+            //myRigidBody.isKinematic = false;
+        }
+
+        /// <summary>
+        /// Set snappable params when the state in In rest zone.
+        /// </summary>
+        public void SetInRestZoneParams()
+        {
+            ChangeColorToRest();
+
             myRigidBody.isKinematic = true;
-        }
+            myRigidBody.velocity = Vector3.zero;
+            myRigidBody.angularVelocity = Vector3.zero;
 
-        /// <summary>
-        /// Make the rigibody dynamic and obey gravity.
-        /// </summary>
-        public void DisableKinemactic()
-        {
-            //myRigidBody.useGravity = true;
-            myRigidBody.isKinematic = false;
-        }
-
-        /// <summary>
-        /// Sets isTrigger to true.
-        /// </summary>
-        public void EnableTrigger()
-        {
-            myCollider.isTrigger = true;
-        }
-
-        /// <summary>
-        /// Sets isTrigger to false.
-        /// </summary>
-        public void DisableTrigger()
-        {
-            myCollider.isTrigger = false;
+            transform.position = restZonePosition;
         }
         #endregion
 
@@ -502,8 +529,8 @@ namespace MyScripts
             // If not snapped, raise event "Deselect Current Snappable".
             EventManager.Instance.RaiseLogicEvent("Deselect Current Snappable");
 
-            // Change state to rest.
-            ChangeState(STATE_REST);
+            //// Change state to rest.
+            //ChangeState(STATE_IN_RESTZONE);
         }
 
         /// <summary>
