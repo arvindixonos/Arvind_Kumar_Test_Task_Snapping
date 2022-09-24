@@ -394,12 +394,18 @@ namespace MyScripts
         /// </summary>
         private void OnMouseDown()
         {
-            // If already snapped, raise event "Mouse Down Snapped".
-            if (IsSnapped)
+            // If following mouse, return.
+            if (IsFollowingMouse)
             {
-                EventManager.Instance.RaiseLogicEvent("Mouse Down Snapped");
                 return;
             }
+
+            // If already snapped, raise event "Mouse Down Snapped".
+            //if (IsSnapped)
+            //{
+            //    EventManager.Instance.RaiseLogicEvent("Mouse Down Snapped");
+            //    return;
+            //}
 
             // If not snapped, raise event "Mouse Down Snappable".
             EventManager.Instance.RaiseLogicEvent("Mouse Down Snappable");
@@ -416,18 +422,22 @@ namespace MyScripts
         /// </summary>
         private void OnMouseUp()
         {
-            // If already snapped, raise event "Mouse Up Snapped".
-            if (IsSnapped)
+            // If following mouse, return.
+            if (IsFollowingMouse)
             {
-                EventManager.Instance.RaiseLogicEvent("Mouse Up Snapped");
-                return;
+                // If not snapped, raise event "Mouse Up Snappable".
+                EventManager.Instance.RaiseLogicEvent("Mouse Up Snappable");
+
+                // If not snapped, raise event "Deselect Current Snappable".
+                EventManager.Instance.RaiseLogicEvent("Deselect Current Snappable");
             }
 
-            // If not snapped, raise event "Mouse Up Snappable".
-            EventManager.Instance.RaiseLogicEvent("Mouse Up Snappable");
-
-            // If not snapped, raise event "Deselect Current Snappable".
-            //EventManager.Instance.RaiseLogicEvent("Deselect Current Snappable");
+            // If already snapped, raise event "Mouse Up Snapped".
+            //if (IsSnapped)
+            //{
+            //    EventManager.Instance.RaiseLogicEvent("Mouse Up Snapped");
+            //    return;
+            //}
 
             //// Change state to rest.
             //ChangeState(STATE_IN_RESTZONE);
@@ -447,15 +457,15 @@ namespace MyScripts
             // If Snapped, raise event "Mouse Hover Snapped".
             if (IsSnapped)
             {
-                EventManager.Instance.RaiseLogicEvent("Mouse Hover Snapped");
+                EventManager.Instance.RaiseLogicEvent("Mouse Hover Snappable");
                 return;
             }
             // If not Snapped, raise event "Mouse Hover Snappable".
-            else
-            {
-                EventManager.Instance.RaiseLogicEvent("Mouse Hover Snappable");
+            //else
+            //{
+            //    EventManager.Instance.RaiseLogicEvent("Mouse Hover Snappable");
                
-            }
+            //}
         }
 
         /// <summary>

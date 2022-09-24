@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9231ccbe85f46594ab0cf76a8e1cb726, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lerpSpeed: 5
+  lerpSpeed: 10
   selectedColor: {r: 0.15641688, g: 0.8962264, b: 0.29155284, a: 1}
   restColor: {r: 0.8186958, g: 0.9150943, b: 0.5913581, a: 1}
   snappedColor: {r: 0.20745817, g: 0.32828462, b: 0.6981132, a: 1}
