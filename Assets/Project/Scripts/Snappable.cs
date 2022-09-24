@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 using DG.Tweening;
+using UnityEngine.Analytics;
 
 namespace MyScripts
 {
@@ -120,6 +121,7 @@ namespace MyScripts
 
         private Vector3 targetPosition;
         private RaycastHit hit;
+        private float seperation = 0f;
 
         // Layer of the table
         public LayerMask tableLayer;
@@ -171,6 +173,8 @@ namespace MyScripts
             myCollider = GetComponent<Collider>();  
             myRenderer = GetComponentInChildren<Renderer>();
 
+            myCollider.contactOffset = 0.5f;
+
             // Initializing the statemachine
             InitStateMachine();
         }
@@ -179,6 +183,36 @@ namespace MyScripts
         {
             // Update our state machine
             stateMachine.UpdateCurrentState();
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            //print("Entering Collision with: " + collision.gameObject.name);
+        }
+
+        private void OnCollisionStay(Collision collision)
+        {
+            ContactPoint[] contacts = new ContactPoint[collision.contactCount];
+
+            int numContacts = collision.GetContacts(contacts);
+
+            seperation = 0f;
+            foreach(ContactPoint contactPoint in contacts)
+            {
+                if(contactPoint.separation < seperation)
+                {
+                    print("Setting Seperation");
+
+                    seperation = contactPoint.separation;
+                }
+            }
+
+            //print("Staying Collision with: " + collision.gameObject.name);
+        }
+
+        private void OnCollisionExit(Collision collision)
+        {
+            //print("Exiting Collision with: " + collision.gameObject.name);
         }
 
         #region STATE MACHINE
@@ -314,7 +348,7 @@ namespace MyScripts
         /// </summary>
         public void EnableKinematic()
         {
-            myRigidBody.useGravity = false;
+            //myRigidBody.useGravity = false;
             myRigidBody.isKinematic = true;
         }
 
@@ -323,7 +357,7 @@ namespace MyScripts
         /// </summary>
         public void DisableKinemactic()
         {
-            myRigidBody.useGravity = true;
+            //myRigidBody.useGravity = true;
             myRigidBody.isKinematic = false;
         }
 
@@ -404,6 +438,13 @@ namespace MyScripts
             if (Physics.Raycast(ray, out hit, 1000f, tableLayer))
             {
                 targetPosition = hit.point;
+
+                if(seperation != 0f)
+                {
+                    print("Using Seperation");
+
+                    targetPosition -= hit.normal * seperation;
+                }
 
                 LerpToTargetPosition();
             }
