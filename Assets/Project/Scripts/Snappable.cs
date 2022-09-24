@@ -15,9 +15,7 @@ namespace MyScripts
     public class Snappable_State_In_RestZone : IState
     {
         /// <summary>
-        /// <para>Changes material color to rest color.</para>
-        /// <para>Disables kinematic(useGravity = true, isKinemactic = false).</para>
-        /// <para>Disables Trigger(isTrigger = false).</para>
+        /// Sets the In Rest Zone state parameters.
         /// </summary>
         /// <param name="targetObject">Typically the owner instance of this state.</param>
         public void EnterState(object targetObject)
@@ -43,9 +41,7 @@ namespace MyScripts
     public class Snappable_State_Snapped : IState
     {
         /// <summary>
-        /// <para>Changes material color to snapped color.</para>
-        /// <para>Disables kinematic(useGravity = false, isKinemactic = true).</para>
-        /// <para>Disables Trigger(isTrigger = true).</para>
+        /// Sets the Snapped state parameters.
         /// </summary>
         /// <param name="targetObject">Typically the owner instance of this state.</param>
         public void EnterState(object targetObject)
@@ -70,7 +66,7 @@ namespace MyScripts
     public class Snappable_State_FollowMouse : IState
     {
         /// <summary>
-        /// <para>Changes material color to selected color.</para>
+        /// Sets the follow mouse state parameters and makes the selected object follow the mouse while updating.
         /// </summary>
         /// <param name="targetObject">Typically the owner instance of this state.</param>
         public void EnterState(object targetObject)
@@ -106,6 +102,9 @@ namespace MyScripts
         public const string STATE_SNAPPED = "Snapped";
         public const string STATE_FOLLOW_MOUSE = "Follow Mouse";
 
+        // Contact offset for collision detection
+        public float contactOffset = 0.5f;
+
         // Lerp speed for following the mouse.
         public float lerpSpeed = 5f;
 
@@ -116,6 +115,8 @@ namespace MyScripts
 
         private Vector3 targetPosition;
         private RaycastHit hit;
+
+        // Least contact point seperation, used while separating the calculating the target position of this snappable.
         private float seperation = 0f;
 
         // Layer of the table
@@ -171,6 +172,10 @@ namespace MyScripts
         private Collider myCollider;
         private Renderer myRenderer;
 
+        /// <summary>
+        /// Initializes this snappable.
+        /// </summary>
+        /// <param name="startRestZonePosition">Position of the rest zone we are starting in.</param>
         public void InitSnappable(Vector3 startRestZonePosition)
         {
             // Populating the references.
@@ -178,7 +183,7 @@ namespace MyScripts
             myCollider = GetComponent<Collider>();
             myRenderer = GetComponentInChildren<Renderer>();
 
-            myCollider.contactOffset = 0.5f;
+            myCollider.contactOffset = contactOffset;
 
             restZonePosition = startRestZonePosition;
 
@@ -195,6 +200,12 @@ namespace MyScripts
             }
         }
 
+        /// <summary>
+        /// If following mouse and if we hit rest zone and if both
+        /// of our max and min position is NOT inside the other bounds, snap to the
+        /// rest zone center and change state to STATE_IN_RESTZONE.
+        /// </summary>
+        /// <param name="other">The trigger we hit.</param>
         private void OnTriggerEnter(Collider other)
         {
             if (IsFollowingMouse)
@@ -213,11 +224,15 @@ namespace MyScripts
             }
         }
 
+        /// <summary>
+        /// Stores the least seperation of the contacts from this collision.
+        /// </summary>
+        /// <param name="collision">Reference to the collision parameter.</param>
         private void OnCollisionStay(Collision collision)
         {
             ContactPoint[] contacts = new ContactPoint[collision.contactCount];
 
-            int numContacts = collision.GetContacts(contacts);
+            collision.GetContacts(contacts);
 
             seperation = 0f;
             foreach(ContactPoint contactPoint in contacts)
@@ -260,7 +275,7 @@ namespace MyScripts
         #region SNAPPABLES
 
         /// <summary>
-        /// 
+        /// Snap to the current target(plane) we are on and deselect the current selected snappable.
         /// </summary>
         public void SnapToCurrentTarget()
         {
@@ -277,8 +292,8 @@ namespace MyScripts
         #region PARAMETERS FOR STATES
 
         /// <summary>
-        
-        /// /// </summary>
+        /// Change snappable color to selected color and makes the rigidbody non-kinematic.
+        /// </summary>
         public void SetFollowMouseParams()
         {
             ChangeColorToSelected();
@@ -287,7 +302,8 @@ namespace MyScripts
         }
 
         /// <summary>
-        /// Set snappable params when the state in In rest zone.
+        /// <para>Change snappable color to rest color and makes the rigidbody kinematic.</para>
+        /// <para>Zeros the velocity and angular velocity of the attached rigidbody.</para>
         /// </summary>
         public void SetInRestZoneParams()
         {
@@ -300,6 +316,10 @@ namespace MyScripts
             transform.position = restZonePosition;
         }
 
+        /// <summary>
+        /// <para>Change snappable color to snapped color and makes the rigidbody kinematic.</para>
+        /// <para>Zeros the velocity and angular velocity of the attached rigidbody.</para>
+        /// </summary>
         public void SetSnappedParams()
         {
             ChangeColorToSnapped();
@@ -339,8 +359,6 @@ namespace MyScripts
 
                 if(seperation != 0f)
                 {
-                    //print("Using Seperation");
-
                     targetPosition -= hit.normal * seperation;
                 }
 

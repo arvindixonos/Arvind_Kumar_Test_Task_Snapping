@@ -72,6 +72,24 @@ namespace MyScripts
         // Consts for state names.
         public const string STATE_MENU = "Menu";
         public const string STATE_GAME = "Game";
+        
+        // Accessor for knowing whether the manager is in the menu state.
+        public bool IsInMenu
+        {
+            get
+            {
+                return currentStateName.Equals(STATE_MENU);
+            }
+        }
+
+        // Accessor for knowing whether the manager is in the game state.
+        public bool IsInGame
+        {
+            get
+            {
+                return currentStateName.Equals(STATE_GAME);
+            }
+        }
 
         // Main canvas instance.
         public CanvasGroup mainCanvas;
@@ -82,7 +100,7 @@ namespace MyScripts
         public Texture2D selectedCursor;
 
         // Instance ID of the currentCursor.
-        private Texture2D currentCursor;
+        private Texture2D lastSetCursor;
 
         // Array of Snappable Prefabs.
         public Snappable[] snappablePrefabs;
@@ -103,7 +121,10 @@ namespace MyScripts
         [SerializeField]
         private string currentStateName;
 
+        // Flag to check cursor inside game screen
         private bool cursorInsideScreen = false;
+
+        // Flag to check whether windows cursor is set
         private bool isDefaultCursorSet = false;
 
         /// <summary>
@@ -159,7 +180,10 @@ namespace MyScripts
                 EventManager.Instance.RaiseLogicEvent("Reload Scene");
             }
 
-            cursorInsideScreen = MouseScreenCheck();
+            // Check if cursor is outside the game screen, if it is then change the cursor 
+            // to default windows cursor and change back to our cursor when the cursor 
+            // comes inside the game screen
+            cursorInsideScreen = IsMouseInsideScreen();
             if (!cursorInsideScreen)
             {
                 if(!isDefaultCursorSet)
@@ -167,12 +191,9 @@ namespace MyScripts
                     SetDefaultCursor();
                 }
             }
-            else
+            else if(isDefaultCursorSet)
             {
-                if (isDefaultCursorSet)
-                {
-                    SetCurrentCursor();
-                }
+                SetCurrentCursor();
             }
         }
 
@@ -202,11 +223,14 @@ namespace MyScripts
             SetCursor(selectedCursor);
         }
 
+        /// <summary>
+        /// Sets the last set cursor if present or else set the default windows cursor.
+        /// </summary>
         private void SetCurrentCursor()
         {
-            if (currentCursor != null)
+            if (lastSetCursor != null)
             {
-                Cursor.SetCursor(currentCursor, Vector2.zero, CursorMode.ForceSoftware);
+                Cursor.SetCursor(lastSetCursor, Vector2.zero, CursorMode.ForceSoftware);
 
                 isDefaultCursorSet = false;
             }
@@ -216,6 +240,9 @@ namespace MyScripts
             }
         }
 
+        /// <summary>
+        /// Sets the default windows cursor.
+        /// </summary>
         private void SetDefaultCursor()
         {
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
@@ -229,9 +256,9 @@ namespace MyScripts
         /// <param name="targetCursor">Target Cursor to set as current cursor of type Texture2D.</param>
         private void SetCursor(Texture2D targetCursor)
         {
-            if (currentCursor != targetCursor)
+            if (lastSetCursor != targetCursor)
             {
-                currentCursor = targetCursor;
+                lastSetCursor = targetCursor;
 
                 Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
 
@@ -239,17 +266,24 @@ namespace MyScripts
             }
         }
 
-        public bool MouseScreenCheck()
+        /// <summary>
+        /// Function to check whether the mouse is inside the bounds of the game screen.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsMouseInsideScreen()
         {
 #if UNITY_EDITOR
-            if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || Input.mousePosition.x >= Handles.GetMainGameViewSize().x - 1 || Input.mousePosition.y >= Handles.GetMainGameViewSize().y - 1)
+            if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || 
+                Input.mousePosition.x >= Handles.GetMainGameViewSize().x - 1 || Input.mousePosition.y >= Handles.GetMainGameViewSize().y - 1)
             {
                 return false;
             }
 #else
-        if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || Input.mousePosition.x >= Screen.width - 1 || Input.mousePosition.y >= Screen.height - 1) {
-        return false;
-        }
+            if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || 
+                Input.mousePosition.x >= Screen.width - 1 || Input.mousePosition.y >= Screen.height - 1) 
+            {
+                return false;
+            }
 #endif
             else
             {
@@ -271,7 +305,7 @@ namespace MyScripts
                 case "Change State to Game":
                     {
                         // Changes state to STATE_GAME if we are in the STATE_MENU state.
-                        if (currentStateName.Equals(STATE_MENU))
+                        if (IsInMenu)
                         {
                             ChangeState(STATE_GAME);
                         }
@@ -329,7 +363,7 @@ namespace MyScripts
                     {
                         if(currentSelectedSnappable == null)
                         {
-                            // Set the cursor to normal cursor.
+                            // Set the cursor to normal cursor on mouse up snappable.
                             SetNormalCursor();
                         }
                         
@@ -340,7 +374,7 @@ namespace MyScripts
                     {
                         if (currentSelectedSnappable == null)
                         {
-                            // Set the cursor to normal cursor.
+                            // Set the cursor to normal cursor to mouse exit snappable.
                             SetNormalCursor();
                         }
                         break;
