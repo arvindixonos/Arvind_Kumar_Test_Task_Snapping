@@ -197,8 +197,6 @@ namespace MyScripts
 
         private void OnTriggerEnter(Collider other)
         {
-            print("Entering Trigger: " + other.name);
-
             if (IsFollowingMouse)
             {
                 if (other.CompareTag(restZoneTagName))
@@ -208,32 +206,11 @@ namespace MyScripts
                         restZonePosition = other.transform.position;
 
                         ChangeState(STATE_IN_RESTZONE);
+
+                        EventManager.Instance.RaiseLogicEvent("Snappable Snapped to Rest Zone");
                     }
                 }
             }
-        }
-
-        private void OnTriggerStay(Collider other)
-        {
-            //print("Staying Trigger: " + other.name);
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (IsFollowingMouse)
-            {
-                if (other.CompareTag(restZoneTagName))
-                {
-                    print("Exiting Trigger: " + other.name);
-
-                    //myRigidBody.detectCollisions = true;
-                }
-            }
-        }
-
-        private void OnCollisionEnter(Collision collision)
-        {
-            //print("Entering Collision with: " + collision.gameObject.name);
         }
 
         private void OnCollisionStay(Collision collision)
@@ -247,18 +224,10 @@ namespace MyScripts
             {
                 if(contactPoint.separation < seperation)
                 {
-                    //print("Setting Seperation");
-
                     seperation = contactPoint.separation;
                 }
             }
 
-            //print("Staying Collision with: " + collision.gameObject.name);
-        }
-
-        private void OnCollisionExit(Collision collision)
-        {
-            //print("Exiting Collision with: " + collision.gameObject.name);
         }
 
         #region STATE MACHINE
@@ -298,6 +267,8 @@ namespace MyScripts
             if(IsFollowingMouse)
             {
                 ChangeState(STATE_SNAPPED);
+
+                EventManager.Instance.RaiseLogicEvent("Deselect Current Snappable");
             }
         }
 
@@ -400,13 +371,6 @@ namespace MyScripts
                 return;
             }
 
-            // If already snapped, raise event "Mouse Down Snapped".
-            //if (IsSnapped)
-            //{
-            //    EventManager.Instance.RaiseLogicEvent("Mouse Down Snapped");
-            //    return;
-            //}
-
             // If not snapped, raise event "Mouse Down Snappable".
             EventManager.Instance.RaiseLogicEvent("Mouse Down Snappable");
 
@@ -427,20 +391,7 @@ namespace MyScripts
             {
                 // If not snapped, raise event "Mouse Up Snappable".
                 EventManager.Instance.RaiseLogicEvent("Mouse Up Snappable");
-
-                // If not snapped, raise event "Deselect Current Snappable".
-                EventManager.Instance.RaiseLogicEvent("Deselect Current Snappable");
             }
-
-            // If already snapped, raise event "Mouse Up Snapped".
-            //if (IsSnapped)
-            //{
-            //    EventManager.Instance.RaiseLogicEvent("Mouse Up Snapped");
-            //    return;
-            //}
-
-            //// Change state to rest.
-            //ChangeState(STATE_IN_RESTZONE);
         }
 
         /// <summary>
@@ -454,18 +405,7 @@ namespace MyScripts
                 return;
             }
 
-            // If Snapped, raise event "Mouse Hover Snapped".
-            if (IsSnapped)
-            {
-                EventManager.Instance.RaiseLogicEvent("Mouse Hover Snappable");
-                return;
-            }
-            // If not Snapped, raise event "Mouse Hover Snappable".
-            //else
-            //{
-            //    EventManager.Instance.RaiseLogicEvent("Mouse Hover Snappable");
-               
-            //}
+            EventManager.Instance.RaiseLogicEvent("Mouse Hover Snappable");
         }
 
         /// <summary>

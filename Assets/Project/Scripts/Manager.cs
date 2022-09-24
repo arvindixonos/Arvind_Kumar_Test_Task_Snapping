@@ -7,6 +7,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Rendering;
 using DG.Tweening;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 
 namespace MyScripts
 {
@@ -76,10 +80,9 @@ namespace MyScripts
         public Texture2D normalCursor;
         public Texture2D hoverCursor;
         public Texture2D selectedCursor;
-        public Texture2D invalidCursor;
 
         // Instance ID of the currentCursor.
-        private int currentCursorID = -1;
+        private Texture2D currentCursor;
 
         // Array of Snappable Prefabs.
         public Snappable[] snappablePrefabs;
@@ -91,7 +94,7 @@ namespace MyScripts
         public Transform[] restZones;
 
         // Current Selected Snappable which can snap other objects to itself.
-        private Snappable currentSelectedSnappable;
+        public Snappable currentSelectedSnappable;
 
         // Our state machine. Manages our states.
         private StateMachine stateMachine;
@@ -99,6 +102,9 @@ namespace MyScripts
         // Name of the current state we are in.
         [SerializeField]
         private string currentStateName;
+
+        private bool cursorInsideScreen = false;
+        private bool isDefaultCursorSet = false;
 
         /// <summary>
         /// Monobehaviour function, initiates the statemachine and sets the cursor to normal cursor.
@@ -152,6 +158,24 @@ namespace MyScripts
             {
                 EventManager.Instance.RaiseLogicEvent("Reload Scene");
             }
+
+            cursorInsideScreen = MouseScreenCheck();
+            if (!cursorInsideScreen)
+            {
+                if(!isDefaultCursorSet)
+                {
+                    print("Setting Default Cursor");
+                    SetDefaultCursor();
+                }
+            }
+            else
+            {
+                if (isDefaultCursorSet)
+                {
+                    print("Setting Current Cursor");
+                    SetCurrentCursor();
+                }
+            }
         }
 
         #region CURSOR FUNCTIONS
@@ -180,12 +204,25 @@ namespace MyScripts
             SetCursor(selectedCursor);
         }
 
-        /// <summary>
-        /// Sets the current cursor to the selected cursor referenced in the manager object.
-        /// </summary>
-        private void SetInvalidCursor()
+        private void SetCurrentCursor()
         {
-            SetCursor(invalidCursor);
+            if (currentCursor != null)
+            {
+                Cursor.SetCursor(currentCursor, Vector2.zero, CursorMode.ForceSoftware);
+
+                isDefaultCursorSet = false;
+            }
+            else
+            {
+                SetDefaultCursor();
+            }
+        }
+
+        private void SetDefaultCursor()
+        {
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+            
+            isDefaultCursorSet = true;
         }
 
         /// <summary>
@@ -194,17 +231,33 @@ namespace MyScripts
         /// <param name="targetCursor">Target Cursor to set as current cursor of type Texture2D.</param>
         private void SetCursor(Texture2D targetCursor)
         {
-            if(currentSelectedSnappable == null)
+            if (currentCursor != targetCursor)
             {
-                if (currentCursorID != targetCursor.GetInstanceID())
-                {
-                    currentCursorID = targetCursor.GetInstanceID();
+                currentCursor = targetCursor;
 
-                    Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
-                }
+                Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
+
+                isDefaultCursorSet = false;
             }
         }
 
+        public bool MouseScreenCheck()
+        {
+#if UNITY_EDITOR
+            if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || Input.mousePosition.x >= Handles.GetMainGameViewSize().x - 1 || Input.mousePosition.y >= Handles.GetMainGameViewSize().y - 1)
+            {
+                return false;
+            }
+#else
+        if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || Input.mousePosition.x >= Screen.width - 1 || Input.mousePosition.y >= Screen.height - 1) {
+        return false;
+        }
+#endif
+            else
+            {
+                return true;
+            }
+        }
         #endregion
 
         #region LOGIC EVENT
@@ -281,20 +334,6 @@ namespace MyScripts
                         break;
                     }
 
-                case "Mouse Hover Snapped":
-                    {
-                        // Set the cursor to invalid cursor.
-                        SetInvalidCursor();
-                        break;
-                    }
-
-                case "Mouse Down Snapped":
-                    {
-                        // Set the cursor to invalid cursor.
-                        SetInvalidCursor();
-                        break;
-                    }
-
                 case "Mouse Up Snapped":
                     {
                         // Set the cursor to normal cursor.
@@ -303,6 +342,13 @@ namespace MyScripts
                     }
 
                 case "Mouse Exit":
+                    {
+                        // Set the cursor to normal cursor.
+                        SetNormalCursor();
+                        break;
+                    }
+
+                case "Snappable Snapped to Rest Zone":
                     {
                         // Set the cursor to normal cursor.
                         SetNormalCursor();
