@@ -164,7 +164,6 @@ namespace MyScripts
             {
                 if(!isDefaultCursorSet)
                 {
-                    print("Setting Default Cursor");
                     SetDefaultCursor();
                 }
             }
@@ -172,7 +171,6 @@ namespace MyScripts
             {
                 if (isDefaultCursorSet)
                 {
-                    print("Setting Current Cursor");
                     SetCurrentCursor();
                 }
             }
@@ -329,22 +327,22 @@ namespace MyScripts
 
                 case "Mouse Up Snappable":
                     {
-                        // Set the cursor to normal cursor.
-                        SetNormalCursor();
-                        break;
-                    }
-
-                case "Mouse Up Snapped":
-                    {
-                        // Set the cursor to normal cursor.
-                        SetNormalCursor();
+                        if(currentSelectedSnappable == null)
+                        {
+                            // Set the cursor to normal cursor.
+                            SetNormalCursor();
+                        }
+                        
                         break;
                     }
 
                 case "Mouse Exit":
                     {
-                        // Set the cursor to normal cursor.
-                        SetNormalCursor();
+                        if (currentSelectedSnappable == null)
+                        {
+                            // Set the cursor to normal cursor.
+                            SetNormalCursor();
+                        }
                         break;
                     }
 
