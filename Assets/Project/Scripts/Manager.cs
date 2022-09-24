@@ -142,9 +142,9 @@ namespace MyScripts
             }
 
             // Shift Input
-            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+            if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
             {
-                EventManager.Instance.RaiseLogicEvent("Snap Snappables");
+                EventManager.Instance.RaiseLogicEvent("Snap to Target");
             }
 
             // R Input
@@ -228,7 +228,7 @@ namespace MyScripts
                         break;
                     }
 
-                case "Snap Snappables":
+                case "Snap to Target":
                     {
                         // If current selected snappable is not null, try to snap the nearest snappable to it.
                         if (currentSelectedSnappable != null)

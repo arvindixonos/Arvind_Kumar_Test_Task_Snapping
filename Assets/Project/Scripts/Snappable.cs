@@ -52,8 +52,7 @@ namespace MyScripts
         {
             var targetSnappable = targetObject as Snappable;
 
-            //targetSnappable.ChangeColorToSnapped();
-            //targetSnappable.SetOutRestZoneParams();
+            targetSnappable.SetSnappedParams();
         }
 
         public void ExitState(object targetObject)
@@ -296,7 +295,10 @@ namespace MyScripts
         /// </summary>
         public void SnapToCurrentTarget()
         {
-            
+            if(IsFollowingMouse)
+            {
+                ChangeState(STATE_SNAPPED);
+            }
         }
 
         #endregion
@@ -304,7 +306,7 @@ namespace MyScripts
         #region PARAMETERS FOR STATES
 
         /// <summary>
-        /// Set snappable params when the state is Out rest zone.        
+        
         /// /// </summary>
         public void SetFollowMouseParams()
         {
@@ -326,6 +328,16 @@ namespace MyScripts
 
             transform.position = restZonePosition;
         }
+
+        public void SetSnappedParams()
+        {
+            ChangeColorToSnapped();
+
+            myRigidBody.isKinematic = true;
+            myRigidBody.velocity = Vector3.zero;
+            myRigidBody.angularVelocity = Vector3.zero;
+        }
+
         #endregion
 
         #region BOUNDS
