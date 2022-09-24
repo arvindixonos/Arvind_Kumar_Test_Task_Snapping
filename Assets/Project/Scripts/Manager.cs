@@ -180,6 +180,17 @@ namespace MyScripts
                 EventManager.Instance.RaiseLogicEvent("Reload Scene");
             }
 
+            // Escape to Quit
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+#else
+
+                Application.Quit();
+#endif
+            }
+
             // Check if cursor is outside the game screen, if it is then change the cursor 
             // to default windows cursor and change back to our cursor when the cursor 
             // comes inside the game screen
@@ -197,7 +208,7 @@ namespace MyScripts
             }
         }
 
-        #region CURSOR FUNCTIONS
+#region CURSOR FUNCTIONS
 
         /// <summary>
         /// Sets the current cursor to the normal cursor referenced in the manager object.
@@ -290,9 +301,9 @@ namespace MyScripts
                 return true;
             }
         }
-        #endregion
+#endregion
 
-        #region LOGIC EVENT
+#region LOGIC EVENT
 
         /// <summary>
         /// Function gets called for handling logic events raised in the system.
@@ -389,9 +400,9 @@ namespace MyScripts
             }
         }
 
-        #endregion
+#endregion
 
-        #region STATE-MACHINE
+#region STATE-MACHINE
 
         /// <summary>
         /// Creates a new statemachine instance for this object and adds the states menu and game to its list.
@@ -415,9 +426,9 @@ namespace MyScripts
             currentStateName = stateMachine.ChangeState(stateName);
         }
 
-        #endregion
+#endregion
 
-        #region SHOW/HIDE UI
+#region SHOW/HIDE UI
 
         /// <summary>
         /// Fades in the main canvas
@@ -437,9 +448,9 @@ namespace MyScripts
             mainCanvas.DOFade(0f, 1f);
         }
 
-        #endregion
+#endregion
 
-        #region ENTER MENU and ENTER GAME
+#region ENTER MENU and ENTER GAME
 
         /// <summary>
         /// Shows the menu UI
@@ -459,9 +470,9 @@ namespace MyScripts
             PopulateSnappables();
         }
 
-        #endregion
+#endregion
 
-        #region SNAPPABLES
+#region SNAPPABLES
 
         /// <summary>
         /// Populates the snappables object pool by instantiating a random prefab from the snappable prefab list and 
@@ -489,6 +500,6 @@ namespace MyScripts
             }
         }
 
-        #endregion
+#endregion
     }
 }
