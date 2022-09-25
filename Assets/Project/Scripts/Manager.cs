@@ -291,7 +291,7 @@ namespace MyScripts
         {
             print("Setting normal cursor");
 
-            SetCursor(normalCursor);
+            SetCursor(normalCursor, Vector2.zero);
         }
 
         /// <summary>
@@ -301,7 +301,7 @@ namespace MyScripts
         {
             print("Setting hover cursor");
 
-            SetCursor(hoverCursor);
+            SetCursor(hoverCursor, Vector2.zero);
         }
 
         /// <summary>
@@ -311,7 +311,7 @@ namespace MyScripts
         {
             print("Setting selected cursor");
 
-            SetCursor(selectedCursor);
+            SetCursor(selectedCursor, Vector2.zero);
         }
 
         /// <summary>
@@ -319,18 +319,16 @@ namespace MyScripts
         /// </summary>
         private void SetCurrentCursor()
         {
-            if (lastSetCursor != null)
+            //if (lastSetCursor != null)
             {
                 print("Setting current cursor");
 
-                SetCursor(lastSetCursor);
-
-                isDefaultCursorSet = false;
+                SetCursor(lastSetCursor, Vector2.zero);
             }
-            else
-            {
-                SetDefaultCursor();
-            }
+            //else
+            //{
+            //    SetDefaultCursor();
+            //}
         }
 
         /// <summary>
@@ -340,24 +338,25 @@ namespace MyScripts
         {
             print("Setting default cursor");
 
-            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-            
-            isDefaultCursorSet = true;
+            SetCursor(null, Vector2.zero);
         }
 
         /// <summary>
         /// Sets the current cursor to the target cursor parameter.
         /// </summary>
         /// <param name="targetCursor">Target Cursor to set as current cursor of type Texture2D.</param>
-        private void SetCursor(Texture2D targetCursor)
+        private void SetCursor(Texture2D targetCursor, Vector2 offset, CursorMode cursorMode = CursorMode.Auto)
         {
-            if (lastSetCursor != targetCursor)
+            //if (lastSetCursor != targetCursor)
             {
-                lastSetCursor = targetCursor;
+                if(targetCursor != null)
+                {
+                    lastSetCursor = targetCursor;
+                }
 
-                Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
+                Cursor.SetCursor(targetCursor, offset, cursorMode);
 
-                isDefaultCursorSet = false;
+                isDefaultCursorSet = targetCursor == null;
             }
         }
 
