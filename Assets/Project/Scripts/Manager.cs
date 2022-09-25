@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 using UnityEngine.Rendering;
+using UnityEngine.InputSystem;
+
 using DG.Tweening;
 
 #if UNITY_EDITOR
@@ -94,6 +96,16 @@ namespace MyScripts
         // Main canvas instance.
         public CanvasGroup mainCanvas;
 
+        // Input Action Assets for PC/Web and Oculus
+        public InputActionAsset pcInputActionAsset;
+        public InputActionAsset oculusInputActionAsset;
+        private InputActionAsset currentSelectedInputActionAsset;
+        private InputAction mouseClickAction;
+        private InputAction mouseMoveAction;
+        private InputAction shiftAction;
+        private InputAction rAction;
+        private InputAction escapeAction;
+
         // Respective cursors.
         public Texture2D normalCursor;
         public Texture2D hoverCursor;
@@ -127,6 +139,7 @@ namespace MyScripts
         // Flag to check whether windows cursor is set
         private bool isDefaultCursorSet = false;
 
+
         /// <summary>
         /// Monobehaviour function, initiates the statemachine and sets the cursor to normal cursor.
         /// </summary>
@@ -137,6 +150,12 @@ namespace MyScripts
             // Initializing the statemachine
             InitStateMachine();
 
+#if UNITY_EDITOR || UNITY_STANDALONE
+            currentSelectedInputActionAsset = pcInputActionAsset;
+#elif UNITY_ANDROID
+            currentSelectedInputActionAsset = oculusInputActionAsset;
+#endif
+
             // Set the initial cursor to normal cursor
             SetNormalCursor();
         }
@@ -146,6 +165,8 @@ namespace MyScripts
         /// </summary>
         private void OnEnable()
         {
+            EnableInputActions();
+
             EventManager.Instance.SubscribeLogicEvent(LogicEvent);
         }
 
@@ -154,6 +175,8 @@ namespace MyScripts
         /// </summary>
         private void OnDisable()
         {
+            DisableInputActions();
+
             EventManager.Instance.UnsubscribeLogicEvent(LogicEvent);
         }
 
@@ -163,31 +186,35 @@ namespace MyScripts
         private void Update()
         {
             // Left Mouse Click Input
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            var mouseClicked = mouseClickAction.ReadValue<float>();
+            if (mouseClicked > 0f)
             {
                 EventManager.Instance.RaiseLogicEvent("Change State to Game");
             }
 
             // Shift Input
-            if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
+            var shiftInput = shiftAction.ReadValue<float>();
+            if (shiftInput > 0f)
             {
                 EventManager.Instance.RaiseLogicEvent("Snap to Target");
             }
 
             // R Input
-            if (Input.GetKeyDown(KeyCode.R))
+            var rInput = rAction.ReadValue<float>();
+            if (rInput > 0f)
             {
                 EventManager.Instance.RaiseLogicEvent("Reload Scene");
             }
 
             // Escape to Quit
-            if (Input.GetKeyDown(KeyCode.Escape))
+            var escapeInput = escapeAction.ReadValue<float>();
+            if (escapeInput > 0f)
             {
 #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
 #else
 
-                Application.Quit();
+                            Application.Quit();
 #endif
             }
 
@@ -197,24 +224,73 @@ namespace MyScripts
             cursorInsideScreen = IsMouseInsideScreen();
             if (!cursorInsideScreen)
             {
-                if(!isDefaultCursorSet)
+                if (!isDefaultCursorSet)
                 {
                     SetDefaultCursor();
                 }
             }
-            else if(isDefaultCursorSet)
+            else if (isDefaultCursorSet)
             {
                 SetCurrentCursor();
             }
         }
 
-#region CURSOR FUNCTIONS
+        #region INPUT ACTIONS ENABLE/DISABLE
+        private void EnableInputActions()
+        {
+
+#if UNITY_EDITOR || UNITY_STANDALONE
+            InputActionMap actionMap = currentSelectedInputActionAsset.FindActionMap("General");
+
+            mouseClickAction = actionMap.FindAction("Mouse Click");
+            mouseClickAction.Enable();
+
+            mouseMoveAction = actionMap.FindAction("Mouse Move");
+            mouseMoveAction.Enable();
+
+            shiftAction = actionMap.FindAction("Shift");
+            shiftAction.Enable();
+
+            rAction = actionMap.FindAction("R");
+            rAction.Enable();
+
+            escapeAction = actionMap.FindAction("Escape");
+            escapeAction.Enable();
+
+
+#elif UNITY_ANDROID
+            currentSelectedInputActionAsset = oculusInputActionAsset;
+#endif
+        }
+
+        private void DisableInputActions()
+        {
+#if UNITY_EDITOR || UNITY_STANDALONE
+            InputActionMap shiftActionMap = currentSelectedInputActionAsset.FindActionMap("General");
+
+            mouseClickAction.Disable();
+            mouseMoveAction.Disable();
+            shiftAction.Disable();
+            rAction.Disable();
+            escapeAction.Disable();
+
+#elif UNITY_ANDROID
+            currentSelectedInputActionAsset = oculusInputActionAsset;
+#endif
+        }
+
+
+        #endregion
+
+        #region CURSOR FUNCTIONS
 
         /// <summary>
         /// Sets the current cursor to the normal cursor referenced in the manager object.
         /// </summary>
         private void SetNormalCursor()
         {
+            print("Setting normal cursor");
+
             SetCursor(normalCursor);
         }
 
@@ -223,6 +299,8 @@ namespace MyScripts
         /// </summary>
         private void SetHoverCursor()
         {
+            print("Setting hover cursor");
+
             SetCursor(hoverCursor);
         }
 
@@ -231,6 +309,8 @@ namespace MyScripts
         /// </summary>
         private void SetSelectedCursor()
         {
+            print("Setting selected cursor");
+
             SetCursor(selectedCursor);
         }
 
@@ -241,7 +321,9 @@ namespace MyScripts
         {
             if (lastSetCursor != null)
             {
-                Cursor.SetCursor(lastSetCursor, Vector2.zero, CursorMode.ForceSoftware);
+                print("Setting current cursor");
+
+                SetCursor(lastSetCursor);
 
                 isDefaultCursorSet = false;
             }
@@ -256,6 +338,8 @@ namespace MyScripts
         /// </summary>
         private void SetDefaultCursor()
         {
+            print("Setting default cursor");
+
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
             
             isDefaultCursorSet = true;
@@ -284,14 +368,17 @@ namespace MyScripts
         public bool IsMouseInsideScreen()
         {
 #if UNITY_EDITOR
-            if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || 
-                Input.mousePosition.x >= Handles.GetMainGameViewSize().x - 1 || Input.mousePosition.y >= Handles.GetMainGameViewSize().y - 1)
+
+            var mousePosition = mouseMoveAction.ReadValue<Vector2>();
+
+            if (mousePosition.x == 0 || mousePosition.y == 0 ||
+                mousePosition.x >= Handles.GetMainGameViewSize().x - 1 || mousePosition.y >= Handles.GetMainGameViewSize().y - 1)
             {
                 return false;
             }
 #else
-            if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || 
-                Input.mousePosition.x >= Screen.width - 1 || Input.mousePosition.y >= Screen.height - 1) 
+            if (mousePosition.x == 0 || mousePosition.y == 0 ||
+                mousePosition.x >= Screen.width - 1 || mousePosition.y >= Screen.height - 1)
             {
                 return false;
             }

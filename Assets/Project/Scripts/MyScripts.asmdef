@@ -3,7 +3,8 @@
     "rootNamespace": "MyScripts",
     "references": [
         "GUID:922592da627b7ab4faa743cbecfd744c",
-        "GUID:ce835fa6fe616ba4b96724f2316eae35"
+        "GUID:ce835fa6fe616ba4b96724f2316eae35",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
