@@ -231,7 +231,7 @@ namespace MyScripts
             }
             else if (isDefaultCursorSet)
             {
-                SetCurrentCursor();
+                SetLastSetCursor();
             }
         }
 
@@ -289,7 +289,7 @@ namespace MyScripts
         /// </summary>
         private void SetNormalCursor()
         {
-            print("Setting normal cursor");
+            //print("Setting normal cursor");
 
             SetCursor(normalCursor, Vector2.zero);
         }
@@ -299,7 +299,7 @@ namespace MyScripts
         /// </summary>
         private void SetHoverCursor()
         {
-            print("Setting hover cursor");
+            //print("Setting hover cursor");
 
             SetCursor(hoverCursor, Vector2.zero);
         }
@@ -309,7 +309,7 @@ namespace MyScripts
         /// </summary>
         private void SetSelectedCursor()
         {
-            print("Setting selected cursor");
+            //print("Setting selected cursor");
 
             SetCursor(selectedCursor, Vector2.zero);
         }
@@ -317,11 +317,11 @@ namespace MyScripts
         /// <summary>
         /// Sets the last set cursor if present or else set the default windows cursor.
         /// </summary>
-        private void SetCurrentCursor()
+        private void SetLastSetCursor()
         {
             //if (lastSetCursor != null)
             {
-                print("Setting current cursor");
+                //print("Setting current cursor");
 
                 SetCursor(lastSetCursor, Vector2.zero);
             }
@@ -336,7 +336,7 @@ namespace MyScripts
         /// </summary>
         private void SetDefaultCursor()
         {
-            print("Setting default cursor");
+            //print("Setting default cursor");
 
             SetCursor(null, Vector2.zero);
         }
@@ -353,6 +353,8 @@ namespace MyScripts
                 {
                     lastSetCursor = targetCursor;
                 }
+
+                //print("Setting cursor");
 
                 Cursor.SetCursor(targetCursor, offset, cursorMode);
 

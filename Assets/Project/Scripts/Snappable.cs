@@ -5,7 +5,10 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 using DG.Tweening;
-using UnityEngine.Analytics;
+
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 namespace MyScripts
 {
@@ -95,7 +98,7 @@ namespace MyScripts
     /// <summary>
     /// Represents the snappables in our application. At the moment there are 4 types of snappables(Cube, Sphere, Cyclinder, Capsule).
     /// </summary>
-    public class Snappable : MonoBehaviour
+    public class Snappable : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IPointerMoveHandler
     {
         // Consts for state names.
         public const string STATE_IN_RESTZONE = "In Rest Zone";
@@ -351,13 +354,18 @@ namespace MyScripts
         /// </summary>
         public void FollowMouse()
         {
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Vector2Control pos = Mouse.current.position;
+            AxisControl xAxis = pos.x;
+            AxisControl yAxis = pos.y;
+            Vector2 val = new Vector2((float) xAxis.ReadValueAsObject(), (float) yAxis.ReadValueAsObject());
+
+            var ray = Camera.main.ScreenPointToRay(val);
 
             if (Physics.Raycast(ray, out hit, 1000f, tableLayer))
             {
                 targetPosition = hit.point;
 
-                if(seperation != 0f)
+                if (seperation != 0f)
                 {
                     targetPosition -= hit.normal * seperation;
                 }
@@ -381,7 +389,7 @@ namespace MyScripts
         /// <summary>
         /// Monobehaviour event on mouse down.
         /// </summary>
-        private void OnMouseDown()
+        public void OnPointerDown(PointerEventData eventData)
         {
             // If following mouse, return.
             if (IsFollowingMouse)
@@ -402,7 +410,7 @@ namespace MyScripts
         /// <summary>
         /// Monobehaviour event on mouse down.
         /// </summary>
-        private void OnMouseUp()
+        public void OnPointerUp(PointerEventData eventData)
         {
             // If following mouse, return.
             if (IsFollowingMouse)
@@ -413,23 +421,9 @@ namespace MyScripts
         }
 
         /// <summary>
-        /// Monobehaviour event on mouse over.
-        /// </summary>
-        private void OnMouseOver()
-        {
-            // If following mouse, return.
-            if (IsFollowingMouse)
-            {
-                return;
-            }
-
-            EventManager.Instance.RaiseLogicEvent("Mouse Hover Snappable");
-        }
-
-        /// <summary>
         /// Monobehaviour event on mouse exit.
         /// </summary>
-        private void OnMouseExit()
+        public void OnPointerExit(PointerEventData eventData)
         {
             // If following mouse, return.
             if (IsFollowingMouse)
@@ -439,6 +433,20 @@ namespace MyScripts
 
             // If not following mouse, raise event "Mouse Exit".
             EventManager.Instance.RaiseLogicEvent("Mouse Exit");
+        }
+
+        /// <summary>
+        /// Monobehaviour event on mouse over.
+        /// </summary>
+        public void OnPointerMove(PointerEventData eventData)
+        {
+            // If following mouse, return.
+            if (IsFollowingMouse)
+            {
+                return;
+            }
+
+            EventManager.Instance.RaiseLogicEvent("Mouse Hover Snappable");
         }
 
         #endregion
